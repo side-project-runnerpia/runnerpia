@@ -17,6 +17,12 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.mariadb.jdbc:mariadb-java-client'
+	implementation 'com.h2database:h2'
+	implementation 'org.projectlombok:lombok:1.18.26'
+	implementation 'org.hibernate:hibernate-spatial:6.2.9.Final'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
