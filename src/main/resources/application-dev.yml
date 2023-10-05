@@ -1,0 +1,36 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ENC(bUphGQvqgyhh1f1c505eagLbqX//6oSrdJkI5IVkdrCVICwWfTYlMHbMnYFYKScDdQ+RO+GpYa9VzveFMchqvG7ss2SCJg7RW5APoX2ZfhXGH0AglWzcxC8APB90ImYF2AJOgeJATOIFjQXhFUBXYh0etuUKFFBrqQggerc46k27FItJMK71eg==)
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ENC(wDW6OzryHrmOOvaJm11Ofg==)
+    password: ENC(p6uxCD+w7+3+9shFTKDza2sn9SeIIN8py6qSZZ61Aqo=)
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MariaDBDialect
+    show-sql: true
+    generate-ddl: true
+    database-platform: org.hibernate.spatial.dialect.mysql.MySQL57InnoDBSpatialDialect
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+
+cloud:
+  aws:
+    s3:
+      bucket: runnerpia-bucket
+    credentials:
+      access-key: ENC(ZH/3p5suT6X+L4TeUnSE2damLR6I1KNxDxT+aOTkn8I=)
+      secret-key: ENC(siR3TJx0waQ/vqqfNcEMTg8x5mgqt8oiSMGwowvymBBZ4q97+UkfrQradTLMk5f/qCLZCX3KcVo=)
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false
