@@ -18,8 +18,8 @@ public class UserRecommendedTag extends BaseTimeEntity {
     @Column(name = "user_recommended_tag_seq", columnDefinition = "BINARY(16) DEFAULT UUID()")
     private UUID id;
 
-    @Column
-    private int idx;
+    @Column(name = "`index`")
+    private int index;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_seq")

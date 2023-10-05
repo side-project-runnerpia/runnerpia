@@ -1,5 +1,6 @@
 package com.runnerpia.boot;
 
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
