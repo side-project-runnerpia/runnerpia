@@ -15,7 +15,7 @@ public class Bookmark extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "running_route_seq")
+    @JoinColumn(name = "route_seq")
     private RunningRoute runningRoute;
 
     @ManyToOne(cascade = CascadeType.ALL)
