@@ -15,7 +15,7 @@ public class UserRecommendedTag extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "uuid")
     @GenericGenerator(name="uuid2", strategy = "uuid2")
-    @Column(name = "user_recommended_tag_seq", columnDefinition = "BINARY(16) DEFAULT UUID()")
+    @Column(name = "user_recommended_tag_seq", columnDefinition = "BINARY(16) DEFAULT (UNHEX(REPLACE(UUID(), \"-\", \"\")))")
     private UUID id;
 
     @Column(name = "`index`")

@@ -37,3 +37,6 @@ out/
 
 ### VS Code ###
 .vscode/
+/src/test/java/com/runnerpia/boot/EncryptionTest.java
+/src/main/resources/images/
+/src/main/resources/data.sql

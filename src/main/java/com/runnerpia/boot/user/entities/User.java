@@ -3,7 +3,7 @@ package com.runnerpia.boot.user.entities;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.util.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.ArrayList;
@@ -13,12 +13,16 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
+@ToString
 public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "uuid")
     @GenericGenerator(name="uuid2", strategy = "uuid2")
-    @Column(name = "user_seq", columnDefinition = "BINARY(16) DEFAULT UUID()")
+    @Column(name = "user_seq", columnDefinition = "BINARY(16) DEFAULT (UNHEX(REPLACE(UUID(), \"-\", \"\")))")
     private UUID id;
 
     @Column(length = 20)
@@ -48,6 +52,7 @@ public class User extends BaseTimeEntity {
     @Column
     private String state;
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<RunningRoute> routeList = new ArrayList<>();
 

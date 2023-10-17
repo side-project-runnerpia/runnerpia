@@ -18,14 +18,21 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.mariadb.jdbc:mariadb-java-client'
 	implementation 'com.h2database:h2'
 	implementation 'org.projectlombok:lombok:1.18.26'
+	implementation 'org.slf4j:slf4j-api'
+	implementation 'commons-io:commons-io:2.11.0'
 	implementation 'org.hibernate:hibernate-spatial:6.2.9.Final'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.findify:s3mock_2.13:0.2.6'
+
+	annotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {

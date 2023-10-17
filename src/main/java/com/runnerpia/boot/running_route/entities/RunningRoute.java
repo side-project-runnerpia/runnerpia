@@ -1,42 +1,53 @@
 package com.runnerpia.boot.running_route.entities;
 
+import com.runnerpia.boot.running_route.dto.CoordinateDto;
 import com.runnerpia.boot.user.entities.Bookmark;
 import com.runnerpia.boot.user.entities.Like;
 import com.runnerpia.boot.user.entities.User;
 import com.runnerpia.boot.util.BaseTimeEntity;
+import com.runnerpia.boot.util.CoordinateConverter;
+import com.runnerpia.boot.util.StringToUuidConverter;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.GenericGenerator;
-import org.locationtech.jts.geom.Geometry;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "running_routes")
+@Table(name = "routes")
 @Getter
 @NoArgsConstructor
+@SuperBuilder
+@AllArgsConstructor
+@Builder
+@ToString
 public class RunningRoute extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "uuid")
+    @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name="uuid2", strategy = "uuid2")
-    @Column(name = "running_route_seq", columnDefinition = "BINARY(16) DEFAULT UUID()")
+    @Column(name = "route_seq", columnDefinition = "BINARY(16) DEFAULT (UNHEX(REPLACE(UUID(), \"-\", \"\")))")
+    @Convert(converter = StringToUuidConverter.class)
     private UUID id;
 
     @Column(length = 50, unique = true)
     private String routeName;
 
-    @Column(columnDefinition = "POINT")
-    private Geometry startPoint;
-
-    @Column(columnDefinition = "LINESTRING")
-    private Geometry arrayOfPos;
+    @Column(columnDefinition = "TEXT")
+    @Convert(converter = CoordinateConverter.class)
+    private List<CoordinateDto> arrayOfPos;
 
     @Column
     @Temporal(TemporalType.TIME)
-    private String runningTime;
+    private LocalTime runningTime;
+
+    @Column
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime runningDate;
 
     @Column(length = 100)
     private String review;
@@ -45,44 +56,29 @@ public class RunningRoute extends BaseTimeEntity {
     private float distance;
 
     @Column
-    private String routeImage;
+    private String location;
 
-    @Column(name = "`key`")
-    private String key;
-
-    @Column
-    private String firstLocation;
-
-    @Column
-    private String secondLocation;
-
-    @Column
-    private String thirdLocation;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq")
+    @Setter // 임시
     private User user;
 
-    @OneToMany(mappedBy = "runningRoute")
+    @OneToMany(mappedBy = "runningRoute", fetch = FetchType.LAZY)
     private List<Bookmark> bookmarks;
 
-    @OneToMany(mappedBy = "runningRoute")
+    @OneToMany(mappedBy = "runningRoute", fetch = FetchType.LAZY)
     private List<Like> likes;
 
-    @OneToMany(mappedBy = "runningRoute")
-    private List<RouteRecommendedTag> routeRecommendedTags;
-
-    @OneToMany(mappedBy = "runningRoute")
-    private List<RouteSecureTag> routeSecureTags;
-
-    @OneToMany(mappedBy = "runningRoute")
+    @OneToMany(mappedBy = "runningRoute", fetch = FetchType.LAZY)
+    @Setter // 임시
     private List<Image> images;
 
-    @ManyToOne
-    @JoinColumn(name = "main_route_seq")
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "main_route_seq", columnDefinition = "BINARY(16) DEFAULT NULL")
+    @Setter // 임시
     private RunningRoute mainRoute;
 
-    @OneToMany(mappedBy = "mainRoute")
+    @OneToMany(mappedBy = "mainRoute", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RunningRoute> subRoute;
 
 }
