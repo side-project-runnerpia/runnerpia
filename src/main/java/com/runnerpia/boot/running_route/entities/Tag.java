@@ -5,6 +5,7 @@ import com.runnerpia.boot.util.StringToUuidConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
+import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
@@ -12,6 +13,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "tags")
 @Getter
+@ToString
 public class Tag {
   @Id
   @GeneratedValue(generator = "uuid")

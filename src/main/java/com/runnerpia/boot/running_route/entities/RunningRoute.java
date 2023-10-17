@@ -14,9 +14,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -34,12 +32,12 @@ public class RunningRoute extends BaseTimeEntity {
     @GenericGenerator(name="uuid2", strategy = "uuid2")
     @Column(name = "route_seq", columnDefinition = "BINARY(16) DEFAULT (UNHEX(REPLACE(UUID(), \"-\", \"\")))")
     @Convert(converter = StringToUuidConverter.class)
-    private UUID id; // 식별자 id
+    private UUID id;
 
     @Column(length = 50, unique = true)
     private String routeName;
 
-    @Column(columnDefinition = "JSON")
+    @Column(columnDefinition = "TEXT")
     @Convert(converter = CoordinateConverter.class)
     private List<CoordinateDto> arrayOfPos;
 
@@ -62,6 +60,7 @@ public class RunningRoute extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_seq")
+    @Setter // 임시
     private User user;
 
     @OneToMany(mappedBy = "runningRoute", fetch = FetchType.LAZY)
@@ -71,9 +70,15 @@ public class RunningRoute extends BaseTimeEntity {
     private List<Like> likes;
 
     @OneToMany(mappedBy = "runningRoute", fetch = FetchType.LAZY)
+    @Setter // 임시
     private List<Image> images;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private final Set<RouteRelationInfo> relationInfo = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "main_route_seq", columnDefinition = "BINARY(16) DEFAULT NULL")
+    @Setter // 임시
+    private RunningRoute mainRoute;
+
+    @OneToMany(mappedBy = "mainRoute", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<RunningRoute> subRoute;
 
 }

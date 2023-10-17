@@ -3,9 +3,7 @@ package com.runnerpia.boot.user.entities;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.util.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.ArrayList;
@@ -15,8 +13,10 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @Getter
-@RequiredArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
+@ToString
 public class User extends BaseTimeEntity {
 
     @Id
@@ -29,10 +29,10 @@ public class User extends BaseTimeEntity {
     private String name;
 
     @Column(length = 20, nullable = false)
-    private final String nickname;
+    private String nickname;
 
     @Column(length = 50, nullable = false)
-    private final String userId;
+    private String userId;
 
     @Column
     private String password;
@@ -52,6 +52,7 @@ public class User extends BaseTimeEntity {
     @Column
     private String state;
 
+    @Builder.Default
     @OneToMany(mappedBy = "user")
     private List<RunningRoute> routeList = new ArrayList<>();
 

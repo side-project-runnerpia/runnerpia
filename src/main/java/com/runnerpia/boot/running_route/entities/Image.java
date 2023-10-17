@@ -3,7 +3,7 @@ package com.runnerpia.boot.running_route.entities;
 import com.runnerpia.boot.util.BaseTimeEntity;
 import com.runnerpia.boot.util.StringToUuidConverter;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
@@ -11,6 +11,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "images")
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Image extends BaseTimeEntity {
     @Id
     @GeneratedValue(generator = "uuid")

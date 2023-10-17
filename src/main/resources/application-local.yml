@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mariadb://localhost:3306/runnerpia?createDatabaseIfNotExist=true
+    url: jdbc:mariadb://localhost:3306/runnerpia?createDatabaseIfNotExist=true&useSSL=false&characterEncoding=utf8mb4
     driver-class-name: org.mariadb.jdbc.Driver
     username:
     password:
@@ -20,4 +20,9 @@ spring:
 
 logging:
   level:
-    org.hibernate.SQL: debug
+    org:
+      hibernate:
+        SQL: debug
+      springframework:
+        data:
+          jpa: debug

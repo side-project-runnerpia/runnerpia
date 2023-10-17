@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 
@@ -22,18 +22,21 @@ public class RunningRouteTest {
 
   @Test
   @Transactional
-  public void testInsertRunningRoute() {
+  public void 러닝루트_엔티티_저장_테스트() {
     // given
-    User user = new User("1", "1");
+    User dummyUser = User.builder()
+            .userId("1")
+            .nickname("1")
+            .build();
     RunningRoute runningRoute = RunningRoute.builder()
             .routeName("Test Route")
             .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
             .runningTime(LocalTime.of(1, 30, 33))
-            .runningDate(LocalDate.of(2023, 10, 16).atStartOfDay())
+            .runningDate(LocalDateTime.of(2023, 12, 2, 19, 30))
             .review("Great route!")
             .distance(10.5f)
             .location("Test Location")
-            .user(user) // 적절한 User 객체 생성 또는 Mocking
+            .user(dummyUser)
             .build();
 
     // when
@@ -48,5 +51,7 @@ public class RunningRouteTest {
     assertEquals(10.5f, savedRoute.getDistance());
     assertEquals("Test Location", savedRoute.getLocation());
     assertNotNull(savedRoute.getUser());
+
+    System.out.println(savedRoute);
   }
 }
