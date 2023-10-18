@@ -28,4 +28,8 @@ public class RunningRouteController {
     return ResponseEntity.ok().body(response);
   }
 
+  @GetMapping("/main/{id}")
+  public ResponseEntity<?> getMainRouteDetail(@PathVariable String id) {
+    return ResponseEntity.ok().body(runningRouteService.getMainRouteDetail(id));
+  }
 }

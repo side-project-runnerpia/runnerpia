@@ -4,6 +4,7 @@ import com.runnerpia.boot.util.StringToUuidConverter;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
@@ -11,6 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "secure_tags")
 @Data
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class SecureTag extends RouteTag {
   @Id

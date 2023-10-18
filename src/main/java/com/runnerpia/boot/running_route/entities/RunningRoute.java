@@ -1,6 +1,8 @@
 package com.runnerpia.boot.running_route.entities;
 
 import com.runnerpia.boot.running_route.dto.CoordinateDto;
+import com.runnerpia.boot.running_route.dto.MainRouteDetailResponseDto;
+import com.runnerpia.boot.user.dto.UserDataForRouteDto;
 import com.runnerpia.boot.user.entities.Bookmark;
 import com.runnerpia.boot.user.entities.Like;
 import com.runnerpia.boot.user.entities.User;
@@ -24,7 +26,6 @@ import java.util.UUID;
 @SuperBuilder
 @AllArgsConstructor
 @Builder
-@ToString
 public class RunningRoute extends BaseTimeEntity {
 
     @Id
@@ -58,7 +59,7 @@ public class RunningRoute extends BaseTimeEntity {
     @Column
     private String location;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_seq")
     @Setter // 임시
     private User user;
@@ -80,5 +81,20 @@ public class RunningRoute extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "mainRoute", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RunningRoute> subRoute;
+
+    public MainRouteDetailResponseDto toResponse() {
+        return MainRouteDetailResponseDto.builder()
+                .routeName(routeName)
+                .distance(distance)
+                .arrayOfPos(arrayOfPos)
+                .review(review)
+                .location(location)
+                .runningTime(runningTime.toString())
+                .runningDate(runningDate.toString())
+                .user(new UserDataForRouteDto(
+                        user.getNickname(),
+                        user.getUserId()))
+                .build();
+    }
 
 }

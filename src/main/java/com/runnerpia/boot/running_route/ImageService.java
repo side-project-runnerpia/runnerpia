@@ -53,4 +53,11 @@ public class ImageService {
       throw new RuntimeException(e);
     }
   }
+
+  public List<String> findAllByRunningRouteList(List<RunningRoute> runningRouteList) {
+    return imageRepository.findAllByRunningRouteList(runningRouteList)
+            .stream()
+            .map(Image::getUrl)
+            .collect(Collectors.toList());
+  }
 }

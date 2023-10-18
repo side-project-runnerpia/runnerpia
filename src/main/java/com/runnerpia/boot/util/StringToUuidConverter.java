@@ -15,8 +15,6 @@ public class StringToUuidConverter implements AttributeConverter<UUID, String> {
 
   @Override
   public UUID convertToEntityAttribute(String uuid) {
-    return uuid != null ? UUID.fromString(
-            uuid.replaceAll("(.{8})(.{4})(.{4})(.{4})(.{12})", "$1-$2-$3-$4-$5")
-    ) : null;
+    return uuid != null ? UUID.fromString(uuid) : null;
   }
 }
