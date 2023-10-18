@@ -16,7 +16,6 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-@ToString
 public class User extends BaseTimeEntity {
 
     @Id

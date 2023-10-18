@@ -8,6 +8,7 @@ import com.runnerpia.boot.user.entities.User;
 import com.runnerpia.boot.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,9 +28,17 @@ public class RunningRouteService {
     return userRepository.save(user);
   }
 
+  public void checkDuplicatedRouteName(String routeName) {
+    runningRouteRepository.findByRouteName(routeName).ifPresent(name -> {
+      throw new DataIntegrityViolationException("이미 존재하는 루트 이름이에요!");
+    });
+  }
+
   @Transactional
   public CreateRunningRouteResponseDto create(CreateRunningRouteRequestDto request) throws RuntimeException {
     RunningRoute route = request.toEntity();
+    checkDuplicatedRouteName(route.getRouteName());
+
     User dummyUser = saveDummyUser(User.builder() // 임시 데이터
             .userId("1")
             .nickname("1")
