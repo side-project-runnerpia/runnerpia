@@ -3,6 +3,8 @@ package com.runnerpia.boot.running_route.entities;
 import com.runnerpia.boot.util.BaseTimeEntity;
 import com.runnerpia.boot.util.StringToUuidConverter;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -23,9 +25,11 @@ public class Image extends BaseTimeEntity {
     private UUID id;
 
     @Column
+    @NotBlank
     private String url;
 
     @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @JoinColumn(name = "route_seq")
+    @NotNull
     private RunningRoute runningRoute;
 }

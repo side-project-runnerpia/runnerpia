@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +41,7 @@ public class User extends BaseTimeEntity {
     private int numberOfUse;
 
     @Column
-    private int birthDate;
+    private LocalDate birthDate;
 
     @Column
     private String gender;
