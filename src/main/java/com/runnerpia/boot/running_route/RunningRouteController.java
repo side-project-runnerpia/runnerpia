@@ -17,6 +17,7 @@ import java.util.List;
 public class RunningRouteController {
 
   private final RunningRouteService runningRouteService;
+  private final TagService tagService;
 
   @PostMapping
   public ResponseEntity<?> create(
@@ -31,5 +32,10 @@ public class RunningRouteController {
   @GetMapping("/main/{id}")
   public ResponseEntity<?> getMainRouteDetail(@PathVariable String id) {
     return ResponseEntity.ok().body(runningRouteService.getMainRouteDetail(id));
+  }
+
+  @GetMapping("/popularTags")
+  public ResponseEntity<?> getPopularTags() {
+    return ResponseEntity.ok().body(tagService.getPopularTags());
   }
 }

@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -30,37 +31,6 @@ public class TagService {
             .filter(Objects::nonNull)
             .collect(Collectors.toList());
   }
-//  @Async
-//  public void addSecureTags(List<String> secureTags, RunningRoute runningRoute) {
-//    List<Tag> secureTagList = setTagEntityList(secureTags);
-//
-//    List<SecureTag> resultList = secureTagList.stream()
-//            .map(tag -> {
-//              SecureTag secureTag = new SecureTag();
-//              secureTag.setTag(tag);
-//              secureTag.setRunningRoute(runningRoute);
-//              return secureTag;
-//            })
-//            .collect(Collectors.toList());
-//
-//    secureTagRepository.saveAll(resultList);
-//  }
-//
-//  @Async
-//  public void addRecommendTags(List<String> recommendTags, RunningRoute runningRoute) {
-//    List<Tag> recommendTagList = setTagEntityList(recommendTags);
-//
-//    List<RecommendTag> resultList = recommendTagList.stream()
-//            .map(tag -> {
-//              RecommendTag recommendTag = new RecommendTag();
-//              recommendTag.setTag(tag);
-//              recommendTag.setRunningRoute(runningRoute);
-//              return recommendTag;
-//            })
-//            .collect(Collectors.toList());
-//
-//    recommendTagRepository.saveAll(resultList);
-//  }
 
   @Async
   public void addSecureTags(List<String> secureTags, RunningRoute runningRoute) {
@@ -91,63 +61,6 @@ public class TagService {
     tagRepository.saveAll(resultList);
   }
 
-
-//  public Map<String, Long> orderTagRecordsByRunningRoute(TagStatus status, List<RunningRoute> runningRouteList) {
-//    TagRecordResponseDto tagsByRoute;
-//    Map<String, Long> tagCountMap = new HashMap<>();
-//
-//    if (status.equals(TagStatus.SECURE)) {
-//      List<Tag> tagList = tagRepository.findAllByStatus(status);
-//      for (Tag tag : tagList) {
-//        for (RunningRoute route : runningRouteList) {
-//          tagsByRoute = secureTagRepository.countTagsByRoute(route.getId(), tag.getId());
-//          System.out.println("TagStatus.SECURE" + tagsByRoute);
-//          if (tagsByRoute != null) {
-//            tagCountMap.compute(tagsByRoute.getTagDescription(),
-//                    (key, existingCount) -> (existingCount == null) ? 1 : existingCount + 1);
-//          }
-//          System.out.println(tagCountMap);
-//        }
-//      }
-//    }
-//    else  {
-//      List<Tag> tagList = tagRepository.findAllByStatus(status);
-//      for (Tag tag : tagList) {
-//        for (RunningRoute route : runningRouteList) {
-//          tagsByRoute = recommendTagRepository.countTagsByRoute(route.getId(), tag.getId());
-//          System.out.println("TagStatus.RECOMMEND" + tagsByRoute);
-//          if (tagsByRoute != null) {
-//            tagCountMap.compute(tagsByRoute.getTagDescription(),
-//                    (key, existingCount) -> (existingCount == null)
-//                            ? 1 : existingCount + 1);
-//          }
-//          System.out.println(tagCountMap);
-//        }
-//      }
-//    }
-//
-//    return tagCountMap;
-//  }
-
-//  private Map<String, Long> countTagsByRoute(TagStatus status, List<RunningRoute> runningRouteList,
-//                                             BiFunction<UUID, UUID, TagRecordResponseDto> countFunction) {
-//    Map<String, Long> tagCountMap = new HashMap<>();
-//
-//    if (status != null) {
-//      List<Tag> tagList = tagRepository.findAllByStatus(status);
-//      for (Tag tag : tagList) {
-//        for (RunningRoute route : runningRouteList) {
-//          TagRecordResponseDto tagsByRoute = countFunction.apply(route.getId(), tag.getId());
-//          if (tagsByRoute != null) {
-//            tagCountMap.compute(tagsByRoute.getTagDescription(),
-//                    (key, existingCount) -> (existingCount == null) ? 1 : existingCount + 1);
-//          }
-//        }
-//      }
-//    }
-//
-//    return tagCountMap;
-//  }
   private Map<String, Long> countTagsByRoute(TagStatus status, List<RunningRoute> runningRouteList,
                                              BiFunction<UUID, UUID, TagRecordResponseDto> countFunction) {
 
@@ -175,4 +88,24 @@ public class TagService {
 
     return countTagsByRoute(status, runningRouteList, countFunction);
   }
+
+  public Map<TagRecordResponseDto, TagStatus> getPopularTags() {
+    Map<TagRecordResponseDto, TagStatus> response = Stream.concat(
+            secureTagRepository.getPopularTags().stream()
+                    .map(tag -> new AbstractMap.SimpleEntry<>(tag, TagStatus.SECURE)),
+            recommendTagRepository.getPopularTags().stream()
+                    .map(tag -> new AbstractMap.SimpleEntry<>(tag, TagStatus.RECOMMEND))
+    ).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+    return response.entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByKey(Comparator.comparing(TagRecordResponseDto::getCount).reversed()))
+            .collect(Collectors.toMap(
+                    Map.Entry::getKey,
+                    Map.Entry::getValue,
+                    (e1, e2) -> e1,
+                    LinkedHashMap::new
+            ));
+  }
+
 }

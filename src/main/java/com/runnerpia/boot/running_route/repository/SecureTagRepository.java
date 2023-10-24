@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.UUID;
 
 @Repository
@@ -19,4 +20,11 @@ public interface SecureTagRepository extends JpaRepository<SecureTag, UUID> {
             "AND t.id = :tagId " +
             "GROUP BY t.description")
     TagRecordResponseDto countTagsByRoute(@Param("routeId") UUID routeId, @Param("tagId") UUID tagId);
+
+    @Query("SELECT NEW com.runnerpia.boot.running_route.dto.TagRecordResponseDto(t.description, COUNT(st.tag)) " +
+            "FROM Tag t " +
+            "JOIN SecureTag st ON t.id = st.tag.id " +
+            "GROUP BY t.id, t.description " +
+            "ORDER BY COUNT(st.tag) DESC")
+    List<TagRecordResponseDto> getPopularTags();
 }
