@@ -38,4 +38,15 @@ public class RunningRouteController {
   public ResponseEntity<?> getPopularTags() {
     return ResponseEntity.ok().body(tagService.getPopularTags());
   }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<?> update(
+          @PathVariable String id,
+          @RequestPart(value = "files", required = false) List<MultipartFile> file,
+          @RequestPart("request") CreateRunningRouteRequestDto request
+  ) {
+    request.setFiles(file);
+    CreateRunningRouteResponseDto response = runningRouteService.update(request, id);
+    return ResponseEntity.ok().body(response);
+  }
 }

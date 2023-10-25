@@ -15,7 +15,7 @@ import java.util.UUID;
 public class CreateRunningRouteRequestDto {
   private List<CoordinateDto> arrayOfPos;
   private String routeName;
-  private float distance;
+  private Float distance;
   private String review;
   private String location;
   private String runningTime;
@@ -25,7 +25,6 @@ public class CreateRunningRouteRequestDto {
   private List<String> secureTags;
   private UUID mainRoute;
   private UUID user;
-
 
   public RunningRoute toEntity() {
     return RunningRoute.builder()

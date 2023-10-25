@@ -33,10 +33,17 @@ public class RunningRouteService {
     return userRepository.save(user);
   }
 
+  @Transactional(readOnly = true)
   public void checkDuplicatedRouteName(String routeName) {
     runningRouteRepository.findByRouteName(routeName).ifPresent(name -> {
       throw new DataIntegrityViolationException("이미 존재하는 루트 이름이에요!");
     });
+  }
+
+  @Transactional(readOnly = true)
+  public RunningRoute findById(String id) {
+    return runningRouteRepository.findById(UUID.fromString(id))
+            .orElseThrow(() -> new NoResultException("해당 ID 값을 가진 러닝루트는 존재하지 않아요."));
   }
 
   @Transactional
@@ -73,10 +80,9 @@ public class RunningRouteService {
             .build();
   }
 
+  @Transactional(readOnly = true)
   public MainRouteDetailResponseDto getMainRouteDetail(String id) {
-    UUID uuid = UUID.fromString(id);
-    RunningRoute route = runningRouteRepository.findById(uuid)
-            .orElseThrow(() -> new NoResultException("해당 ID 값을 가진 데이터는 존재하지 않아요."));
+    RunningRoute route = findById(id);
 
     MainRouteDetailResponseDto response = route.toResponse();
 
@@ -100,5 +106,25 @@ public class RunningRouteService {
     response.setRecommendTags(recommendTags.isEmpty() || recommendTags.size() == 0 ? null : recommendTags);
 
     return response;
+  }
+
+  @Transactional
+  public CreateRunningRouteResponseDto update(CreateRunningRouteRequestDto request, String id) {
+    RunningRoute targetRoute = findById(id);
+
+    targetRoute.setReview(request.getReview());
+
+    Optional.ofNullable(request.getFiles())
+            .ifPresent(files -> imageService.update(files, targetRoute));
+    Optional.ofNullable(request.getSecureTags())
+            .filter(tags -> !tags.isEmpty())
+            .ifPresent(tags -> tagService.updateSecureTags(tags, targetRoute));
+    Optional.ofNullable(request.getRecommendTags())
+            .filter(tags -> !tags.isEmpty())
+            .ifPresent(tags -> tagService.updateRecommendTags(tags, targetRoute));
+
+    return CreateRunningRouteResponseDto.builder()
+            .id(targetRoute.getId())
+            .build();
   }
 }
