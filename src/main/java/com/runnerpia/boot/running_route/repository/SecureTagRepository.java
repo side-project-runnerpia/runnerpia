@@ -1,8 +1,10 @@
 package com.runnerpia.boot.running_route.repository;
 
 import com.runnerpia.boot.running_route.dto.TagRecordResponseDto;
+import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.running_route.entities.SecureTag;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -27,4 +29,8 @@ public interface SecureTagRepository extends JpaRepository<SecureTag, UUID> {
             "GROUP BY t.id, t.description " +
             "ORDER BY COUNT(st.tag) DESC")
     List<TagRecordResponseDto> getPopularTags();
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("DELETE FROM SecureTag st WHERE st.runningRoute = :runningRoute")
+    void deleteAllByRunningRoute(@Param("runningRoute") RunningRoute runningRoute);
 }

@@ -38,8 +38,12 @@ public class ImageService {
             .collect(Collectors.toList());
 
     List<Image> savedImages = imageRepository.saveAll(images);
-    System.out.println(savedImages);
     return CompletableFuture.completedFuture(savedImages);
+  }
+
+  public void update(List<MultipartFile> files, RunningRoute route) {
+    deleteAllByRunningRoute(route);
+    saveAll(files, route);
   }
 
   private Image setImageEntity(MultipartFile file, RunningRoute route) {
@@ -54,8 +58,12 @@ public class ImageService {
     }
   }
 
+  private void deleteAllByRunningRoute(RunningRoute runningRoute) {
+    imageRepository.deleteAllByRunningRoute(runningRoute);
+  }
+
   public List<String> findAllByRunningRouteList(List<RunningRoute> runningRouteList) {
-    return imageRepository.findAllByRunningRouteList(runningRouteList)
+    return imageRepository.findAllByRunningRouteIn(runningRouteList)
             .stream()
             .map(Image::getUrl)
             .collect(Collectors.toList());

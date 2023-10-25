@@ -108,4 +108,21 @@ public class TagService {
             ));
   }
 
+  public void updateSecureTags(List<String> tags, RunningRoute route) {
+    deleteAllSecureTagsByRunningRoute(route);
+    addSecureTags(tags, route);
+  }
+
+  public void updateRecommendTags(List<String> tags, RunningRoute route) {
+    deleteAllRecommendTagsByRunningRoute(route);
+    addRecommendTags(tags, route);
+  }
+
+  private void deleteAllSecureTagsByRunningRoute(RunningRoute runningRoute) {
+    secureTagRepository.deleteAllByRunningRoute(runningRoute);
+  }
+
+  private void deleteAllRecommendTagsByRunningRoute(RunningRoute runningRoute) {
+    recommendTagRepository.deleteAllByRunningRoute(runningRoute);
+  }
 }

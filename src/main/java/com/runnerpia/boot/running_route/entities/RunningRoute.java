@@ -12,6 +12,7 @@ import com.runnerpia.boot.util.StringToUuidConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ import java.util.UUID;
 @SuperBuilder
 @AllArgsConstructor
 @Builder
+@DynamicUpdate
 public class RunningRoute extends BaseTimeEntity {
 
     @Id
@@ -51,10 +53,11 @@ public class RunningRoute extends BaseTimeEntity {
     private LocalDateTime runningDate;
 
     @Column(length = 100)
+    @Setter
     private String review;
 
     @Column
-    private float distance;
+    private Float distance;
 
     @Column
     private String location;
@@ -65,9 +68,11 @@ public class RunningRoute extends BaseTimeEntity {
     private User user;
 
     @OneToMany(mappedBy = "runningRoute", fetch = FetchType.LAZY)
+    @Setter // 임시
     private List<Bookmark> bookmarks;
 
     @OneToMany(mappedBy = "runningRoute", fetch = FetchType.LAZY)
+    @Setter // 임시
     private List<Like> likes;
 
     @OneToMany(mappedBy = "runningRoute", fetch = FetchType.LAZY)
