@@ -1,4 +1,4 @@
-package com.runnerpia.boot.jasypt;
+package com.runnerpia.boot.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jasypt.encryption.StringEncryptor;

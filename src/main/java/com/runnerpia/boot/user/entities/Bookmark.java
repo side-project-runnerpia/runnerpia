@@ -3,11 +3,16 @@ package com.runnerpia.boot.user.entities;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.util.BaseTimeEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 
 @Entity
-@Table(name = "bookmarks")
+@Table(name = "bookmarks", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "route_seq", "user_seq" })
+})
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class Bookmark extends BaseTimeEntity {
 
     @Id

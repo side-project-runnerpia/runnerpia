@@ -36,6 +36,7 @@ class UserControllerTest {
     private static final String USER_NICKNAME = "nickname";
     private static final String NOT_EXIST = "NOT_EXIST";
 
+
     @BeforeEach
     void initData() {
         UserInfoDto.Request request = UserInfoDto.Request.builder()

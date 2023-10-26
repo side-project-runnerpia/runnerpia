@@ -11,6 +11,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -33,9 +34,9 @@ public class UserService {
     }
 
     @Transactional
-    public void increaseUseRecommended(String userId) {
+    public void increaseUseRecommended(UUID userUUID) {
 
-        Optional<User> findUser = userRepository.findByUserId(userId);
+        Optional<User> findUser = userRepository.findById(userUUID);
         if(!findUser.isPresent()) throw new NoResultException("사용자를 찾을 수 없습니다.");
 
         User user = findUser.get();
@@ -43,9 +44,9 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public UserInfoDto.Response getUseRecommended(String userId) {
+    public UserInfoDto.Response getUseRecommended(UUID userUUID) {
 
-        Optional<User> findUser = userRepository.findByUserId(userId);
+        Optional<User> findUser = userRepository.findById(userUUID);
         if(!findUser.isPresent()) throw new NoResultException("사용자를 찾을 수 없습니다.");
 
         User user = findUser.get();
@@ -56,8 +57,8 @@ public class UserService {
 
     //임시
     @Transactional
-    public void createUser(UserInfoDto.Request request) {
+    public User createUser(UserInfoDto.Request request) {
         User user = request.toEntity();
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 }
