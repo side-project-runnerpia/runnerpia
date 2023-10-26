@@ -28,7 +28,7 @@ public class Image extends BaseTimeEntity {
     @NotBlank
     private String url;
 
-    @ManyToOne(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "route_seq")
     @NotNull
     private RunningRoute runningRoute;

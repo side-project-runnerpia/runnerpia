@@ -1,8 +1,6 @@
 package com.runnerpia.boot.running_route;
 
-import com.runnerpia.boot.running_route.entities.Image;
-import com.runnerpia.boot.running_route.entities.RunningRoute;
-import com.runnerpia.boot.running_route.repository.ImageRepository;
+import com.runnerpia.boot.running_route.service.ImageService;
 import com.runnerpia.boot.s3.S3Upload;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -13,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,7 +27,7 @@ public class ImageServiceTest {
 
   @Test
   @Transactional
-  public void S3_이미지_업로드_URL_반환_테스트() throws IOException {
+  void S3_이미지_업로드_후_URL_반환_테스트() throws IOException {
     when(s3Upload.uploadToAws(any(MultipartFile.class), anyString()))
             .thenReturn(FAKE_IMAGE_URL);
 

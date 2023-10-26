@@ -18,7 +18,7 @@ public interface RecommendTagRepository extends JpaRepository<RecommendTag, UUID
           "FROM Tag t " +
           "LEFT JOIN RecommendTag rt ON t.id = rt.tag.id " +
           "LEFT JOIN RunningRoute r ON rt.runningRoute.id = r.id " +
-          "WHERE rt.id = :routeId " +
+          "WHERE r.id = :routeId " +
           "AND t.id = :tagId " +
           "GROUP BY t.description")
   TagRecordResponseDto countTagsByRoute(@Param("routeId") UUID routeId, @Param("tagId") UUID tagId);

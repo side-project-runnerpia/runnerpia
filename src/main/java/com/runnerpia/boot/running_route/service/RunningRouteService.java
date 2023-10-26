@@ -1,4 +1,4 @@
-package com.runnerpia.boot.running_route;
+package com.runnerpia.boot.running_route.service;
 
 import com.runnerpia.boot.running_route.dto.*;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
@@ -116,15 +116,18 @@ public class RunningRouteService {
 
     Optional.ofNullable(request.getFiles())
             .ifPresent(files -> imageService.update(files, targetRoute));
-    Optional.ofNullable(request.getSecureTags())
-            .filter(tags -> !tags.isEmpty())
-            .ifPresent(tags -> tagService.updateSecureTags(tags, targetRoute));
-    Optional.ofNullable(request.getRecommendTags())
-            .filter(tags -> !tags.isEmpty())
-            .ifPresent(tags -> tagService.updateRecommendTags(tags, targetRoute));
+
+    tagService.updateSecureTags(request.getSecureTags(), targetRoute);
+    tagService.updateRecommendTags(request.getRecommendTags(), targetRoute);
 
     return CreateRunningRouteResponseDto.builder()
             .id(targetRoute.getId())
             .build();
+  }
+
+  @Transactional
+  public void delete(String id) {
+    RunningRoute targetRoute = findById(id);
+    runningRouteRepository.delete(targetRoute);
   }
 }
