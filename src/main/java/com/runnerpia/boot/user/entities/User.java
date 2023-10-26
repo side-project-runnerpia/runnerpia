@@ -2,6 +2,7 @@ package com.runnerpia.boot.user.entities;
 
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.util.BaseTimeEntity;
+import com.runnerpia.boot.util.StringToUuidConverter;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users")
+@Table(name = "USERS")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -20,24 +21,23 @@ import java.util.UUID;
 public class User extends BaseTimeEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "uuid")
+    @GeneratedValue(generator = "uuid")
     @GenericGenerator(name="uuid2", strategy = "uuid2")
     @Column(name = "user_seq", columnDefinition = "BINARY(16) DEFAULT (UNHEX(REPLACE(UUID(), \"-\", \"\")))")
+    @Convert(converter = StringToUuidConverter.class)
     private UUID id;
 
     @Column(length = 20)
     private String name;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 20)
     private String nickname;
 
     @Column(length = 50, nullable = false)
     private String userId;
 
-    @Column
-    private String password;
-
     @Column(columnDefinition = "INT DEFAULT 0")
+    @Setter
     private int numberOfUse;
 
     @Column
