@@ -33,7 +33,7 @@ public class User extends BaseTimeEntity {
     @Column(length = 20)
     private String nickname;
 
-    @Column(length = 50, nullable = false)
+    @Column(length = 50, nullable = false, unique = true)
     private String userId;
 
     @Column(columnDefinition = "INT DEFAULT 0")
@@ -51,6 +51,10 @@ public class User extends BaseTimeEntity {
 
     @Column
     private String state;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "user")
+    private List<Bookmark> bookmarks = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(mappedBy = "user")
