@@ -1,4 +1,4 @@
-package com.runnerpia.boot.running_route;
+package com.runnerpia.boot.running_route.service;
 
 import com.runnerpia.boot.running_route.dto.TagRecordResponseDto;
 import com.runnerpia.boot.running_route.entities.*;
@@ -8,6 +8,7 @@ import com.runnerpia.boot.running_route.repository.TagRepository;
 import com.runnerpia.boot.running_route.repository.SecureTagRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -26,18 +27,33 @@ public class TagService {
   private final SecureTagRepository secureTagRepository;
   private final RecommendTagRepository recommendTagRepository;
   private List<Tag> setTagEntityList(List<String> tags) {
-    return tags.parallelStream()
+    return !tags.isEmpty() ? tags.parallelStream()
             .map(tagRepository::findByDescription)
             .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+            .collect(Collectors.toList()) : null;
+  }
+
+  public void validateTagStatus(List<String> tags, TagStatus status) {
+    String explainTag = status.equals(TagStatus.SECURE) ? "안심" : "추천";
+
+    tags.parallelStream()
+            .map(tagRepository::findByDescription)
+            .filter(tag -> !tag.getStatus().equals(status))
+            .findAny()
+            .ifPresent(tag -> {
+              throw new DataIntegrityViolationException(
+                      "[" + tag.getDescription() + "] 태그는 " + explainTag + " 태그가 아니에요");
+            });
   }
 
   @Async
   public void addSecureTags(List<String> secureTags, RunningRoute runningRoute) {
+    validateTagStatus(secureTags, TagStatus.SECURE);
     mapTagToRoute(secureTags, runningRoute, secure -> new SecureTag(), secureTagRepository);
   }
   @Async
   public void addRecommendTags(List<String> recommendTags, RunningRoute runningRoute) {
+    validateTagStatus(recommendTags, TagStatus.RECOMMEND);
     mapTagToRoute(recommendTags, runningRoute, recommend -> new RecommendTag(), recommendTagRepository);
   }
 
@@ -110,12 +126,16 @@ public class TagService {
 
   public void updateSecureTags(List<String> tags, RunningRoute route) {
     deleteAllSecureTagsByRunningRoute(route);
-    addSecureTags(tags, route);
+    Optional.ofNullable(tags)
+            .filter(tagList -> !tagList.isEmpty())
+            .ifPresent(tag -> addSecureTags(tag, route));
   }
 
   public void updateRecommendTags(List<String> tags, RunningRoute route) {
     deleteAllRecommendTagsByRunningRoute(route);
-    addRecommendTags(tags, route);
+    Optional.ofNullable(tags)
+            .filter(tagList -> !tagList.isEmpty())
+            .ifPresent(tag -> addRecommendTags(tag, route));
   }
 
   private void deleteAllSecureTagsByRunningRoute(RunningRoute runningRoute) {

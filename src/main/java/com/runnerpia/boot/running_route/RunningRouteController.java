@@ -2,6 +2,8 @@ package com.runnerpia.boot.running_route;
 
 import com.runnerpia.boot.running_route.dto.CreateRunningRouteRequestDto;
 import com.runnerpia.boot.running_route.dto.CreateRunningRouteResponseDto;
+import com.runnerpia.boot.running_route.service.RunningRouteService;
+import com.runnerpia.boot.running_route.service.TagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -48,5 +50,11 @@ public class RunningRouteController {
     request.setFiles(file);
     CreateRunningRouteResponseDto response = runningRouteService.update(request, id);
     return ResponseEntity.ok().body(response);
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<?> delete(@PathVariable String id) {
+    runningRouteService.delete(id);
+    return ResponseEntity.noContent().build();
   }
 }

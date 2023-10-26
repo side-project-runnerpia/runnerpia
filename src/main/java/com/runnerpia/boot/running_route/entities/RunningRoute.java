@@ -75,16 +75,40 @@ public class RunningRoute extends BaseTimeEntity {
     @Setter // 임시
     private List<Like> likes;
 
-    @OneToMany(mappedBy = "runningRoute", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "runningRoute"
+            , fetch = FetchType.LAZY
+            , orphanRemoval = true
+            , cascade = CascadeType.PERSIST
+    )
     @Setter // 임시
     private List<Image> images;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "runningRoute"
+            , fetch = FetchType.LAZY
+            , orphanRemoval = true
+            , cascade = CascadeType.PERSIST
+    )
+    @Setter
+    private List<SecureTag> secureTags;
+
+    @OneToMany(mappedBy = "runningRoute"
+            , fetch = FetchType.LAZY
+            , orphanRemoval = true
+            , cascade = CascadeType.PERSIST
+    )
+    @Setter
+    private List<RecommendTag> recommendTags;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "main_route_seq", columnDefinition = "BINARY(16) DEFAULT NULL")
     @Setter // 임시
     private RunningRoute mainRoute;
 
-    @OneToMany(mappedBy = "mainRoute", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "mainRoute"
+            , fetch = FetchType.LAZY
+            , orphanRemoval = true
+            , cascade = CascadeType.PERSIST
+    )
     private List<RunningRoute> subRoute;
 
     public MainRouteDetailResponseDto toResponse() {
