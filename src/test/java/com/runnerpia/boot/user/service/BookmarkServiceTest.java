@@ -3,8 +3,10 @@ package com.runnerpia.boot.user.service;
 import com.runnerpia.boot.running_route.dto.CoordinateDto;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.running_route.repository.RunningRouteRepository;
-import com.runnerpia.boot.user.dto.BookmarkInfoDto;
-import com.runnerpia.boot.user.dto.UserInfoDto;
+import com.runnerpia.boot.user.dto.request.BookmarkInfoReqDto;
+import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
+import com.runnerpia.boot.user.dto.response.BookmarkInfoRespDto;
+import com.runnerpia.boot.user.entities.Bookmark;
 import com.runnerpia.boot.user.entities.User;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,12 +40,12 @@ class BookmarkServiceTest {
     private User user;
     private UUID userUUID;
     private UUID runnigRouteUUID;
-    private BookmarkInfoDto.Request request;
+    private BookmarkInfoReqDto request;
 
 
     @BeforeEach
     void initData() {
-        user = userService.createUser(UserInfoDto.Request
+        user = userService.createUser(UserInfoReqDto
                 .builder().userId("userId")
                 .build()
         );
@@ -63,7 +65,7 @@ class BookmarkServiceTest {
         RunningRoute saveRunningRoute = runningRouteRepository.save(runningRoute);
         runnigRouteUUID = saveRunningRoute.getId();
 
-        request = BookmarkInfoDto.Request
+        request = BookmarkInfoReqDto
                 .builder()
                 .runningRouteId(runnigRouteUUID.toString())
                 .userId(userUUID.toString())
@@ -74,8 +76,8 @@ class BookmarkServiceTest {
     @DisplayName("북마크 생성 테스트")
     void createBookmarkTest() {
 
-        BookmarkInfoDto.Response response = bookmarkService.createBookmark(request);
-        assertThat(response.getRunningRouteId()).isEqualTo(runnigRouteUUID.toString());
+        Bookmark savedBookmark = bookmarkService.createBookmark(request);
+        assertThat(savedBookmark.getRunningRoute().getId()).isEqualTo(runnigRouteUUID.toString());
     }
 
     @Test
@@ -107,7 +109,7 @@ class BookmarkServiceTest {
         RunningRoute saveRunningRoute = runningRouteRepository.save(runningRoute2);
         UUID runningRouteUUID2 = saveRunningRoute.getId();
 
-        BookmarkInfoDto.Request newRequest = BookmarkInfoDto.Request
+        BookmarkInfoReqDto newRequest = BookmarkInfoReqDto
                 .builder()
                 .runningRouteId(saveRunningRoute.getId().toString())
                 .userId(userUUID.toString())
@@ -116,7 +118,7 @@ class BookmarkServiceTest {
         bookmarkService.createBookmark(request);
         bookmarkService.createBookmark(newRequest);
 
-        BookmarkInfoDto.Response response = bookmarkService.getAllUserBookmark(userUUID.toString());
+        BookmarkInfoRespDto response = bookmarkService.getAllUserBookmark(userUUID.toString());
         List<String> runningRouteIdList = response.getRunningRouteIdList();
 
         assertThat(runningRouteIdList)
