@@ -1,7 +1,7 @@
 package com.runnerpia.boot.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.runnerpia.boot.user.dto.UserInfoDto;
+import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
 import com.runnerpia.boot.user.service.UserService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+
 
 
 @SpringBootTest
@@ -39,7 +41,7 @@ class UserControllerTest {
 
     @BeforeEach
     void initData() {
-        UserInfoDto.Request request = UserInfoDto.Request.builder()
+        UserInfoReqDto request = UserInfoReqDto.builder()
                 .userId(USER_ID)
                 .nickname(USER_NICKNAME)
                 .build();
@@ -55,13 +57,15 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                     .get(BASE_URL+"/checkId/{id}", NOT_EXIST)
                     .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.isExists").value("false"));
 
         //아이디가 이미 존재하는 경우
         mockMvc.perform(MockMvcRequestBuilders
                     .get(BASE_URL+"/checkId/{id}", USER_ID)
                     .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.isExists").value("true"));
     }
 
     @Test
@@ -72,13 +76,15 @@ class UserControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .get(BASE_URL+"/checkNickname/{nickname}", NOT_EXIST)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.isExists").value("false"));
 
         //닉네임이 이미 존재하는 경우
         mockMvc.perform(MockMvcRequestBuilders
                         .get(BASE_URL+"/checkNickname/{nickname}", USER_NICKNAME)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(jsonPath("$.isExists").value("true"));
     }
 
     @Test

@@ -28,6 +28,7 @@ dependencies {
 	implementation 'org.hibernate:hibernate-spatial:6.2.9.Final'
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 	implementation 'com.github.ulisesbocchio:jasypt-spring-boot-starter:3.0.5'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
 	implementation 'com.querydsl:querydsl-apt:5.0.0:jakarta'
 	annotationProcessor(
@@ -39,6 +40,10 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.findify:s3mock_2.13:0.2.6'
+	testImplementation 'com.jayway.jsonpath:json-path'
+
+
+
 }
 
 tasks.named('test') {

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runnerpia.boot.running_route.dto.CoordinateDto;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.running_route.repository.RunningRouteRepository;
-import com.runnerpia.boot.user.dto.BookmarkInfoDto;
-import com.runnerpia.boot.user.dto.UserInfoDto;
+import com.runnerpia.boot.user.dto.request.BookmarkInfoReqDto;
+import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
 import com.runnerpia.boot.user.entities.User;
 import com.runnerpia.boot.user.service.BookmarkService;
 import com.runnerpia.boot.user.service.UserService;
@@ -47,12 +47,12 @@ class BookmarkControllerTest {
     private User user;
     private UUID userUUID;
     private UUID runnigRouteUUID;
-    private BookmarkInfoDto.Request request;
-    private BookmarkInfoDto.Request badRequest;
+    private BookmarkInfoReqDto request;
+    private BookmarkInfoReqDto badRequest;
 
     @BeforeEach
     void initData() {
-        user = userService.createUser(UserInfoDto.Request
+        user = userService.createUser(UserInfoReqDto
                 .builder().userId("userId")
                 .build()
         );
@@ -73,12 +73,12 @@ class BookmarkControllerTest {
         RunningRoute saveRunningRoute = runningRouteRepository.save(runningRoute);
         runnigRouteUUID = saveRunningRoute.getId();
 
-        request = BookmarkInfoDto.Request
+        request = BookmarkInfoReqDto
                 .builder().runningRouteId(runnigRouteUUID.toString())
                 .userId(userUUID.toString())
                 .build();
 
-        badRequest = BookmarkInfoDto.Request
+        badRequest = BookmarkInfoReqDto
                 .builder().runningRouteId(UUID.randomUUID().toString())
                 .userId(UUID.randomUUID().toString())
                 .build();
@@ -93,8 +93,7 @@ class BookmarkControllerTest {
                 .post(BASE_URL + "/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(request)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("runningRouteId").exists())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         //에러발생
@@ -102,7 +101,7 @@ class BookmarkControllerTest {
                         .post(BASE_URL + "/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(badRequest)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andReturn();
     }
 
@@ -124,7 +123,7 @@ class BookmarkControllerTest {
                         .post(BASE_URL + "/delete")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(badRequest)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andReturn();
     }
 
@@ -147,7 +146,7 @@ class BookmarkControllerTest {
         RunningRoute saveRunningRoute = runningRouteRepository.save(runningRoute2);
         UUID runningRouteUUID2 = saveRunningRoute.getId();
 
-        BookmarkInfoDto.Request newRequest = BookmarkInfoDto.Request
+        BookmarkInfoReqDto newRequest = BookmarkInfoReqDto
                 .builder()
                 .runningRouteId(saveRunningRoute.getId().toString())
                 .userId(userUUID.toString())
@@ -170,7 +169,7 @@ class BookmarkControllerTest {
                         .get(BASE_URL + "/getAll")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(badRequest)))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andReturn();
 
     }

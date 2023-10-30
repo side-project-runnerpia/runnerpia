@@ -1,16 +1,16 @@
 package com.runnerpia.boot.user.service;
 
-import com.runnerpia.boot.user.dto.UserInfoDto;
+import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
+import com.runnerpia.boot.user.dto.response.UserInfoCheckRespDto;
 import com.runnerpia.boot.user.entities.User;
-import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +33,7 @@ class UserServiceTest {
 
     @BeforeEach
     void initData() {
-        UserInfoDto.Request request = UserInfoDto.Request.builder()
+        UserInfoReqDto request = UserInfoReqDto.builder()
                 .userId(USER_ID)
                 .nickname(USER_NICKNAME)
                 .build();
@@ -46,18 +46,17 @@ class UserServiceTest {
     void userIdANdNicknameExistCheck() {
 
 
-        boolean userIdExists = userService.isUserIdExists(NOT_EXIST);
-        boolean nicknameExists = userService.isNicknameExists(NOT_EXIST);
+        UserInfoCheckRespDto userIdExists = userService.isUserIdExists(NOT_EXIST);
+        UserInfoCheckRespDto nicknameExists = userService.isNicknameExists(NOT_EXIST);
 
-        assertThat(userIdExists).isFalse();
-        assertThat(nicknameExists).isFalse();
+        assertThat(userIdExists.getIsExists()).isFalse();
+        assertThat(nicknameExists.getIsExists()).isFalse();
 
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            userService.isUserIdExists(USER_ID);
-        });
-        assertThrows(DataIntegrityViolationException.class, () -> {
-            userService.isNicknameExists(USER_NICKNAME);
-        });
+        userIdExists = userService.isUserIdExists(USER_ID);
+        nicknameExists =  userService.isNicknameExists(USER_NICKNAME);
+
+        assertThat(userIdExists.getIsExists()).isTrue();
+        assertThat(nicknameExists.getIsExists()).isTrue();
     }
 
     @Test
@@ -74,10 +73,10 @@ class UserServiceTest {
         assertThat(getInitUserNumberOfUse).isEqualTo(INIT_NUMBER_OF_USE);
         assertThat(getIncreaseUserNumberOfUse).isEqualTo(INIT_NUMBER_OF_USE+1);
 
-        assertThrows(NoResultException.class, () -> {
+        assertThrows(NoSuchElementException.class, () -> {
             userService.increaseUseRecommended(UUID.randomUUID());
         });
-        assertThrows(NoResultException.class, () -> {
+        assertThrows(NoSuchElementException.class, () -> {
             userService.getUseRecommended(UUID.randomUUID());
         });
     }
