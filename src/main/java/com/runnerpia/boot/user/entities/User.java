@@ -60,4 +60,18 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user")
     private List<RunningRoute> routeList = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user"
+            , fetch = FetchType.LAZY
+            , orphanRemoval = true
+            , cascade = CascadeType.PERSIST
+    )
+    private List<UserSecureTag> userSecureTags;
+
+    @OneToMany(mappedBy = "user"
+            , fetch = FetchType.LAZY
+            , orphanRemoval = true
+            , cascade = CascadeType.PERSIST
+    )
+    private List<UserRecommendedTag> userRecommendedTags;
+
 }
