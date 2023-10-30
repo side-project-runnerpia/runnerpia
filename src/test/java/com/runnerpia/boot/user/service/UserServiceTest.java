@@ -1,7 +1,12 @@
 package com.runnerpia.boot.user.service;
 
+import com.runnerpia.boot.running_route.entities.Tag;
+import com.runnerpia.boot.running_route.entities.enums.TagStatus;
+import com.runnerpia.boot.running_route.repository.TagRepository;
 import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
+import com.runnerpia.boot.user.dto.request.UserSignInReqDto;
 import com.runnerpia.boot.user.dto.response.UserInfoCheckRespDto;
+import com.runnerpia.boot.user.dto.response.UserSignInRespDto;
 import com.runnerpia.boot.user.entities.User;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -24,21 +31,55 @@ class UserServiceTest {
     @Autowired
     UserService userService;
 
+    @Autowired
+    TagRepository tagRepository;
+
     private static final String USER_ID = "userId";
     private static final String USER_NICKNAME = "nickname";
+    private static final String USER_CITY = "userCity";
+    private static final String USER_STATE = "userState";
+    private static final String SECURE_TAG = "secureTag";
+    private static final String RECOMMENDED_TAG = "recommendedTag";
     private static final String NOT_EXIST = "NOT_EXIST";
     private static final Integer INIT_NUMBER_OF_USE = 0;
 
     private User saveUser;
+    private User savedSignInUser;
+    private Tag savedSecureTag;
+    private Tag savedRecommendedTag;
+
+    private UserSignInReqDto userSignInRequest;
 
     @BeforeEach
     void initData() {
-        UserInfoReqDto request = UserInfoReqDto.builder()
-                .userId(USER_ID)
+        UserInfoReqDto userInfoRequest = UserInfoReqDto.builder()
+                .userId(USER_ID+1)
                 .nickname(USER_NICKNAME)
                 .build();
 
-        saveUser = userService.createUser(request);
+        saveUser = userService.createUser(userInfoRequest);
+
+        Tag secureTag = new Tag(SECURE_TAG, TagStatus.SECURE);
+        savedSecureTag = tagRepository.save(secureTag);
+
+        Tag recommendedTag = new Tag(RECOMMENDED_TAG, TagStatus.SECURE);
+        savedRecommendedTag = tagRepository.save(recommendedTag);
+
+        List<String> secureTags = new ArrayList<>();
+        secureTags.add(savedSecureTag.getId().toString());
+
+        List<String> recommendedTags = new ArrayList<>();
+        recommendedTags.add(savedRecommendedTag.getId().toString());
+
+        userSignInRequest = UserSignInReqDto.builder()
+                .userId(USER_ID+2)
+                .city(USER_CITY)
+                .state(USER_STATE)
+                .secureTags(secureTags)
+                .recommendedTags(recommendedTags)
+                .build();
+
+        savedSignInUser = userService.createUser(userSignInRequest);
     }
 
     @Test
@@ -80,5 +121,19 @@ class UserServiceTest {
             userService.getUseRecommended(UUID.randomUUID());
         });
     }
+
+    @Test
+    @DisplayName("회원가입")
+    void signInTest() {
+
+        UserSignInRespDto userSignInRespDto = userService.signIn(userSignInRequest);
+
+        assertThat(userSignInRespDto.getUserId()).isEqualTo(savedSignInUser.getUserId());
+        assertThat(userSignInRespDto.getCity()).isEqualTo(savedSignInUser.getCity());
+        assertThat(userSignInRespDto.getState()).isEqualTo(savedSignInUser.getState());
+        assertThat(userSignInRespDto.getSecureTags().get(0)).contains(savedSecureTag.getId().toString());
+        assertThat(userSignInRespDto.getRecommendedTags().get(0)).isEqualTo(savedRecommendedTag.getId().toString());
+    }
+
 
 }

@@ -1,8 +1,10 @@
 package com.runnerpia.boot.user.controller;
 
 import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
+import com.runnerpia.boot.user.dto.request.UserSignInReqDto;
 import com.runnerpia.boot.user.dto.response.UserInfoCheckRespDto;
 import com.runnerpia.boot.user.dto.response.UserInfoRespDto;
+import com.runnerpia.boot.user.dto.response.UserSignInRespDto;
 import com.runnerpia.boot.user.entities.User;
 import com.runnerpia.boot.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -52,4 +54,16 @@ public class UserController {
         UserInfoRespDto response = userService.getUseRecommended(user.getId());
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "회원가입")
+    @PostMapping("/signIn")
+    public ResponseEntity<UserSignInRespDto> getUseRecommended(@RequestBody UserSignInReqDto request) {
+
+        //TODO: 토큰에서 id값을 꺼내서 update 하는 방식으로 변경해야함(현재는 임시 값으로)
+
+        UserSignInRespDto response = userService.signIn(request);
+
+        return ResponseEntity.ok(response);
+    }
+
 }

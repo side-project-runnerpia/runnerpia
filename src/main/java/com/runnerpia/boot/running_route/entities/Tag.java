@@ -4,8 +4,7 @@ import com.runnerpia.boot.running_route.entities.enums.TagStatus;
 import com.runnerpia.boot.util.StringToUuidConverter;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.util.UUID;
@@ -30,4 +29,13 @@ public class Tag {
   @Column(columnDefinition = "ENUM('SECURE', 'RECOMMEND') DEFAULT 'RECOMMEND'")
   @NotBlank
   private TagStatus status;
+
+  public Tag(String description, TagStatus status) {
+    this.description = description;
+    this.status = status;
+  }
+
+  public Tag() {
+
+  }
 }
