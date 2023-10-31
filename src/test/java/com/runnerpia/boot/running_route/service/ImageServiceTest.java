@@ -1,4 +1,4 @@
-package com.runnerpia.boot.running_route;
+package com.runnerpia.boot.running_route.service;
 
 import com.runnerpia.boot.running_route.service.ImageService;
 import com.runnerpia.boot.s3.S3Upload;
