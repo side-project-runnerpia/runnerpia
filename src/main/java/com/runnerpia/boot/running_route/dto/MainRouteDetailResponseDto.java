@@ -1,7 +1,7 @@
 package com.runnerpia.boot.running_route.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.runnerpia.boot.user.dto.UserDataForRouteDto;
+import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
 import lombok.Builder;
 import lombok.Data;
 
@@ -24,5 +24,5 @@ public class MainRouteDetailResponseDto {
   private Map<String, Long> recommendTags;
   private Map<String, Long> secureTags;
   private UUID mainRoute;
-  private UserDataForRouteDto user;
+  private UserInfoReqDto user;
 }

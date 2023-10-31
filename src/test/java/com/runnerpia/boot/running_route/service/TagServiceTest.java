@@ -1,4 +1,4 @@
-package com.runnerpia.boot.running_route;
+package com.runnerpia.boot.running_route.service;
 
 import com.runnerpia.boot.running_route.entities.enums.TagStatus;
 import com.runnerpia.boot.running_route.repository.RunningRouteRepository;

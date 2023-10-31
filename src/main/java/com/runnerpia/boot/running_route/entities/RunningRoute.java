@@ -2,7 +2,7 @@ package com.runnerpia.boot.running_route.entities;
 
 import com.runnerpia.boot.running_route.dto.CoordinateDto;
 import com.runnerpia.boot.running_route.dto.MainRouteDetailResponseDto;
-import com.runnerpia.boot.user.dto.UserDataForRouteDto;
+import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
 import com.runnerpia.boot.user.entities.Bookmark;
 import com.runnerpia.boot.user.entities.Like;
 import com.runnerpia.boot.user.entities.User;
@@ -120,9 +120,9 @@ public class RunningRoute extends BaseTimeEntity {
                 .location(location)
                 .runningTime(runningTime.toString())
                 .runningDate(runningDate.toString())
-                .user(new UserDataForRouteDto(
-                        user.getNickname(),
-                        user.getUserId()))
+                .user(new UserInfoReqDto(
+                        user.getUserId(),
+                        user.getNickname()))
                 .build();
     }
 

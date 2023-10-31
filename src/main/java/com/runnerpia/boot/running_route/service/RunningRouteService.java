@@ -9,7 +9,6 @@ import com.runnerpia.boot.user.repository.UserRepository;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,22 +33,26 @@ public class RunningRouteService {
   }
 
   @Transactional(readOnly = true)
-  public void checkDuplicatedRouteName(String routeName) {
-    runningRouteRepository.findByRouteName(routeName).ifPresent(name -> {
-      throw new DataIntegrityViolationException("이미 존재하는 루트 이름이에요!");
-    });
+  public CheckRouteResponseDto checkDuplicatedRouteName(String routeName) {
+    boolean isExists = runningRouteRepository.existsByRouteName(routeName);
+    return new CheckRouteResponseDto(isExists);
+  }
+
+  @Transactional(readOnly = true)
+  public CheckRouteResponseDto existsById(String id) {
+    boolean isExists = runningRouteRepository.existsById(UUID.fromString(id));
+    return new CheckRouteResponseDto(isExists);
   }
 
   @Transactional(readOnly = true)
   public RunningRoute findById(String id) {
     return runningRouteRepository.findById(UUID.fromString(id))
-            .orElseThrow(() -> new NoResultException("해당 ID 값을 가진 러닝루트는 존재하지 않아요."));
+            .orElseThrow(() -> new NoResultException("해당 ID 값을 가진 경로는 존재하지 않아요."));
   }
 
   @Transactional
   public CreateRunningRouteResponseDto create(CreateRunningRouteRequestDto request) throws RuntimeException {
     RunningRoute route = request.toEntity();
-    checkDuplicatedRouteName(route.getRouteName());
 
     User dummyUser = saveDummyUser(User.builder() // 임시 데이터
             .userId("1")
