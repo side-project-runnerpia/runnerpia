@@ -57,7 +57,10 @@ public class User extends BaseTimeEntity {
     private List<Bookmark> bookmarks = new ArrayList<>();
 
     @Builder.Default
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user"
+            , fetch = FetchType.LAZY
+            , cascade = CascadeType.ALL
+    )
     private List<RunningRoute> routeList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user"

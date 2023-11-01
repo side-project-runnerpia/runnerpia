@@ -1,5 +1,6 @@
 package com.runnerpia.boot.user.service;
 
+import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.running_route.entities.Tag;
 import com.runnerpia.boot.running_route.repository.TagRepository;
 import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
@@ -100,5 +101,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-
+    public List<RunningRoute> findAllRunningRoutesByUser(User user) {
+        return userRepository.findAllRunningRoutesByUser(user);
+    }
 }

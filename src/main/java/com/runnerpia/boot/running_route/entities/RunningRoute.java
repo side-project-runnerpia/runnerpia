@@ -118,6 +118,7 @@ public class RunningRoute extends BaseTimeEntity {
                 .arrayOfPos(arrayOfPos)
                 .review(review)
                 .location(location)
+                .mainRoute(mainRoute == null ? null : mainRoute.getId())
                 .runningTime(runningTime.toString())
                 .runningDate(runningDate.toString())
                 .user(new UserInfoReqDto(

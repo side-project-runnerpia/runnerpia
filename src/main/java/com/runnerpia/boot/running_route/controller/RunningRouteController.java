@@ -1,13 +1,9 @@
 package com.runnerpia.boot.running_route.controller;
 
-import com.runnerpia.boot.running_route.dto.CheckRouteResponseDto;
-import com.runnerpia.boot.running_route.dto.CreateRunningRouteRequestDto;
-import com.runnerpia.boot.running_route.dto.CreateRunningRouteResponseDto;
-import com.runnerpia.boot.running_route.dto.MainRouteDetailResponseDto;
+import com.runnerpia.boot.running_route.dto.*;
 import com.runnerpia.boot.running_route.service.RunningRouteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -38,8 +34,7 @@ public class RunningRouteController {
   }
 
   @Operation(summary = "경로 등록")
-  @ApiResponses({
-          @ApiResponse(responseCode = "201", description = "Created")})
+  @ApiResponse(responseCode = "201", description = "Created")
   @PostMapping
   public ResponseEntity<Void> create(
           @RequestPart(value = "files", required = false) List<MultipartFile> file,
@@ -60,6 +55,24 @@ public class RunningRouteController {
   @GetMapping("/main/{id}")
   public ResponseEntity<MainRouteDetailResponseDto> getMainRouteDetail(@PathVariable String id) {
     return ResponseEntity.ok(runningRouteService.getMainRouteDetail(id));
+  }
+
+  @Operation(summary = "사용자가 해당 경로를 따라 뛴 경험이 있는지 확인")
+  @GetMapping("/checkRunningExperience/{id}")
+  public ResponseEntity<CheckRunningExperienceDto> checkRunningExperience(@PathVariable String id) {
+    return ResponseEntity.ok(runningRouteService.checkRunningExperience(id));
+  }
+
+  @Operation(summary = "사용자 마이페이지 추천 경로 업로드 내역")
+  @GetMapping("/allMainRoute")
+  public ResponseEntity<List<MainRouteDetailResponseDto>> getAllMainRoute(@RequestBody(required = false) String user) {
+    return ResponseEntity.ok(runningRouteService.getAllMainRoutes());
+  }
+
+  @Operation(summary = "사용자 마이페이지 작성한 리뷰")
+  @GetMapping("/allSubRoute")
+  public ResponseEntity<List<MainRouteDetailResponseDto>> getAllSubRoute(@RequestBody(required = false) String user) {
+    return ResponseEntity.ok(runningRouteService.getAllSubRoutes());
   }
 
   @Operation(summary = "등록한 경로 정보 수정")

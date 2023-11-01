@@ -13,7 +13,6 @@ public interface RunningRouteRepository extends JpaRepository<RunningRoute, UUID
   RunningRoute findTop1ByOrderByCreatedDateDesc();
   Optional<RunningRoute> findByRouteName(String routeName);
   List<RunningRoute> findAllByIdOrMainRoute(UUID id, RunningRoute mainRoute);
-  List<RunningRoute> findByMainRoute(RunningRoute mainRoute);
   Boolean existsByRouteName(String routeName);
   boolean existsById(UUID id);
 }
