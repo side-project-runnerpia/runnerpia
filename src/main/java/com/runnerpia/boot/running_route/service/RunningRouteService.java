@@ -6,17 +6,18 @@ import com.runnerpia.boot.running_route.entities.enums.TagStatus;
 import com.runnerpia.boot.running_route.repository.RunningRouteRepository;
 import com.runnerpia.boot.user.entities.User;
 import com.runnerpia.boot.user.repository.UserRepository;
+import com.runnerpia.boot.user.service.UserService;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +27,18 @@ public class RunningRouteService {
   private final UserRepository userRepository; // 임시
   private final ImageService imageService;
   private final TagService tagService;
+  private final UserService userService;
+  private static final User dummyUser = User.builder().userId("test").nickname("test").build(); // 임시 데이터
 
   @Transactional
   public User saveDummyUser(User user) {
     return userRepository.save(user);
+  }
+
+  private void checkDuplicatedRouteNameForApi(String routeName) {
+    runningRouteRepository.findByRouteName(routeName).ifPresent(name -> {
+      throw new DataIntegrityViolationException("이미 존재하는 경로 이름이에요!");
+    });
   }
 
   @Transactional(readOnly = true)
@@ -50,14 +59,23 @@ public class RunningRouteService {
             .orElseThrow(() -> new NoResultException("해당 ID 값을 가진 경로는 존재하지 않아요."));
   }
 
+  public Set<RunningRoute> findAllRelatedRoutesInList(List<RunningRoute> routeList) {
+    return routeList.stream()
+            .flatMap(route -> {
+              if (route.getMainRoute() == null) {
+                return runningRouteRepository.findAllByIdOrMainRoute(route.getId(), route).stream();
+              } else {
+                return Stream.of(runningRouteRepository.findById(route.getMainRoute().getId()).orElse(null));
+              }
+            }).collect(Collectors.toSet());
+  }
+
   @Transactional
   public CreateRunningRouteResponseDto create(CreateRunningRouteRequestDto request) throws RuntimeException {
     RunningRoute route = request.toEntity();
-
-    User dummyUser = saveDummyUser(User.builder() // 임시 데이터
-            .userId("1")
-            .nickname("1")
-            .build());
+    checkDuplicatedRouteNameForApi(route.getRouteName());
+//    saveDummyUser(dummyUser); // 임시
+    User dummyUser = userRepository.findByUserId("test").get(); // 임시
     route.setUser(dummyUser);
 
     Optional.ofNullable(request.getMainRoute())
@@ -88,10 +106,6 @@ public class RunningRouteService {
     RunningRoute route = findById(id);
 
     MainRouteDetailResponseDto response = route.toResponse();
-
-    response.setMainRoute(Optional.ofNullable(route.getMainRoute())
-            .map(RunningRoute::getId)
-            .orElse(null));
 
     List<RunningRoute> allRoutes = runningRouteRepository.findAllByIdOrMainRoute(route.getId(), route);
 
@@ -132,5 +146,35 @@ public class RunningRouteService {
   public void delete(String id) {
     RunningRoute targetRoute = findById(id);
     runningRouteRepository.delete(targetRoute);
+  }
+
+  public CheckRunningExperienceDto checkRunningExperience(String id) {
+    User targetUser = userRepository.findByUserId("test").get(); // 임시
+    RunningRoute targetRoute = findById(id);
+
+    Boolean isExperienceRoute = findAllRelatedRoutesInList(userService.findAllRunningRoutesByUser(targetUser))
+            .stream()
+            .anyMatch(route -> route.getId().equals(targetRoute.getId()));
+
+    return new CheckRunningExperienceDto(isExperienceRoute);
+  }
+
+  public List<MainRouteDetailResponseDto> getAllRoutesByFilter(Predicate<RunningRoute> filter) {
+    User targetUser = userRepository.findByUserId("test").orElseThrow(); // 임시
+    return userService.findAllRunningRoutesByUser(targetUser)
+            .stream()
+            .filter(filter)
+            .map(RunningRoute::toResponse)
+            .collect(Collectors.toList());
+  }
+
+  public List<MainRouteDetailResponseDto> getAllMainRoutes() {
+    Predicate<RunningRoute> isMainRoute = runningRoute -> runningRoute.getMainRoute() == null;
+    return getAllRoutesByFilter(isMainRoute);
+  }
+
+  public List<MainRouteDetailResponseDto> getAllSubRoutes() {
+    Predicate<RunningRoute> isSubRoute = runningRoute -> runningRoute.getMainRoute() != null;
+    return getAllRoutesByFilter(isSubRoute);
   }
 }
