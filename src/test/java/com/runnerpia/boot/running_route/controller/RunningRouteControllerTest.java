@@ -2,9 +2,10 @@ package com.runnerpia.boot.running_route.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.runnerpia.boot.running_route.dto.CoordinateDto;
-import com.runnerpia.boot.running_route.dto.CreateRunningRouteRequestDto;
+import com.runnerpia.boot.running_route.dto.request.CreateRunningRouteRequestDto;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.user.entities.User;
+import com.runnerpia.boot.util.GeometryConverter;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -45,10 +47,12 @@ public class RunningRouteControllerTest {
   private static final UUID ROUTE_SEQ = UUID.randomUUID();
   private static final String ROUTE_NAME = "test_route";
   private static final String NOT_EXIST = "NOT_EXIST";
+  private List<CoordinateDto> sampleCoordinate = Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234));
 
   private RunningRoute runningRoute;
   private User dummyUser;
   private CreateRunningRouteRequestDto requestDto;
+
 
   @BeforeEach
   void initData() {
@@ -60,7 +64,7 @@ public class RunningRouteControllerTest {
 
     runningRoute = RunningRoute.builder()
             .routeName(ROUTE_NAME)
-            .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+            .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
             .runningTime(LocalTime.of(1, 30, 33))
             .runningDate(LocalDateTime.of(2023, 12, 2, 19, 30))
             .review("Great route!")
@@ -71,7 +75,7 @@ public class RunningRouteControllerTest {
 
     requestDto = CreateRunningRouteRequestDto.builder()
             .routeName("Test Route1")
-            .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+            .arrayOfPos(sampleCoordinate)
             .runningTime(String.valueOf(LocalTime.of(1, 30, 33)))
             .runningDate(String.valueOf(LocalDate.of(2023, 11, 11)))
             .review("Great route!")

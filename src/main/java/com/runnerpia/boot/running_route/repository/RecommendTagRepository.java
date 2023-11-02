@@ -1,6 +1,6 @@
 package com.runnerpia.boot.running_route.repository;
 
-import com.runnerpia.boot.running_route.dto.TagRecordResponseDto;
+import com.runnerpia.boot.running_route.dto.response.TagRecordResponseDto;
 import com.runnerpia.boot.running_route.entities.RecommendTag;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Repository
 public interface RecommendTagRepository extends JpaRepository<RecommendTag, UUID> {
-  @Query("SELECT NEW com.runnerpia.boot.running_route.dto.TagRecordResponseDto(t.description, COUNT(rt.tag)) " +
+  @Query("SELECT NEW com.runnerpia.boot.running_route.dto.response.TagRecordResponseDto(t.description, COUNT(rt.tag)) " +
           "FROM Tag t " +
           "LEFT JOIN RecommendTag rt ON t.id = rt.tag.id " +
           "LEFT JOIN RunningRoute r ON rt.runningRoute.id = r.id " +
@@ -23,7 +23,7 @@ public interface RecommendTagRepository extends JpaRepository<RecommendTag, UUID
           "GROUP BY t.description")
   TagRecordResponseDto countTagsByRoute(@Param("routeId") UUID routeId, @Param("tagId") UUID tagId);
 
-  @Query("SELECT NEW com.runnerpia.boot.running_route.dto.TagRecordResponseDto(t.description, COUNT(rt.tag)) " +
+  @Query("SELECT NEW com.runnerpia.boot.running_route.dto.response.SearchNearbyRouteResponseDto(t.description, COUNT(rt.tag)) " +
           "FROM Tag t " +
           "JOIN RecommendTag rt ON t.id = rt.tag.id " +
           "GROUP BY t.id, t.description " +

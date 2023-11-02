@@ -1,6 +1,6 @@
 package com.runnerpia.boot.running_route.service;
 
-import com.runnerpia.boot.running_route.dto.TagRecordResponseDto;
+import com.runnerpia.boot.running_route.dto.response.TagRecordResponseDto;
 import com.runnerpia.boot.running_route.entities.*;
 import com.runnerpia.boot.running_route.entities.enums.TagStatus;
 import com.runnerpia.boot.running_route.repository.RecommendTagRepository;
@@ -77,7 +77,7 @@ public class TagService {
     tagRepository.saveAll(resultList);
   }
 
-  private Map<String, Long> countTagsByRoute(TagStatus status, List<RunningRoute> runningRouteList,
+  private Map<String, Long> countTagsByRoute(TagStatus status, Set<RunningRoute> runningRouteList,
                                              BiFunction<UUID, UUID, TagRecordResponseDto> countFunction) {
 
     if (status == null) return Collections.emptyMap();
@@ -92,7 +92,7 @@ public class TagService {
             ));
   }
 
-  public Map<String, Long> orderTagRecordsByRunningRoute(TagStatus status, List<RunningRoute> runningRouteList) {
+  public List<TagRecordResponseDto> orderTagRecordsByRunningRoute(TagStatus status, Set<RunningRoute> runningRouteList) {
     BiFunction<UUID, UUID, TagRecordResponseDto> countFunction = null;
 
     if (status.equals(TagStatus.SECURE)) {
@@ -102,7 +102,8 @@ public class TagService {
       countFunction = recommendTagRepository::countTagsByRoute;
     }
 
-    return countTagsByRoute(status, runningRouteList, countFunction);
+    Map<String, Long> response = countTagsByRoute(status, runningRouteList, countFunction);
+    return TagRecordResponseDto.mapToTagRecordResponseDtoList(response);
   }
 
   public Map<TagRecordResponseDto, TagStatus> getPopularTags() {

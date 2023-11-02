@@ -8,6 +8,7 @@ import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
 import com.runnerpia.boot.user.dto.response.BookmarkInfoRespDto;
 import com.runnerpia.boot.user.entities.Bookmark;
 import com.runnerpia.boot.user.entities.User;
+import com.runnerpia.boot.util.GeometryConverter;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,6 +43,8 @@ class BookmarkServiceTest {
     private UUID runnigRouteUUID;
     private BookmarkInfoReqDto request;
 
+    private List<CoordinateDto> sampleCoordinate = Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234));
+
 
     @BeforeEach
     void initData() {
@@ -54,7 +57,7 @@ class BookmarkServiceTest {
         RunningRoute runningRoute = RunningRoute
                 .builder()
                 .routeName("Test Route1")
-                .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+                .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
                 .runningTime(LocalTime.of(1, 30, 33))
                 .runningDate(LocalDateTime.of(2023, 12, 2, 1,30,33))
                 .review("Great route!")
@@ -77,7 +80,7 @@ class BookmarkServiceTest {
     void createBookmarkTest() {
 
         Bookmark savedBookmark = bookmarkService.createBookmark(request);
-        assertThat(savedBookmark.getRunningRoute().getId()).isEqualTo(runnigRouteUUID.toString());
+        assertThat(savedBookmark.getRunningRoute().getId()).isEqualTo(runnigRouteUUID);
     }
 
     @Test
@@ -97,7 +100,7 @@ class BookmarkServiceTest {
         RunningRoute runningRoute2 = RunningRoute
                 .builder()
                 .routeName("Test Route2")
-                .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+                .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
                 .runningTime(LocalTime.of(1, 30, 33))
                 .runningDate(LocalDateTime.of(2023, 12, 2, 1,30,33))
                 .review("Great route!")

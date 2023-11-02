@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -62,7 +63,7 @@ public class ImageService {
     imageRepository.deleteAllByRunningRoute(runningRoute);
   }
 
-  public List<String> findAllByRunningRouteList(List<RunningRoute> runningRouteList) {
+  public List<String> findAllByRunningRouteList(Set<RunningRoute> runningRouteList) {
     return imageRepository.findAllByRunningRouteIn(runningRouteList)
             .stream()
             .map(Image::getUrl)

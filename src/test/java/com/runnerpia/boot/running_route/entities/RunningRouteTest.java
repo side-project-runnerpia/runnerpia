@@ -4,6 +4,7 @@ import com.runnerpia.boot.running_route.dto.CoordinateDto;
 import com.runnerpia.boot.running_route.entities.enums.TagStatus;
 import com.runnerpia.boot.running_route.repository.TagRepository;
 import com.runnerpia.boot.user.entities.User;
+import com.runnerpia.boot.util.GeometryConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,8 @@ public class RunningRouteTest {
   private RunningRoute runningRoute;
   private User dummyUser;
 
+  private List<CoordinateDto> sampleCoordinate = Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234));
+
   @BeforeEach
   void initData() {
     // given
@@ -46,7 +49,7 @@ public class RunningRouteTest {
 
     runningRoute = RunningRoute.builder()
             .routeName("Test Route")
-            .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+            .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
             .runningTime(LocalTime.of(1, 30, 33))
             .runningDate(LocalDateTime.of(2023, 12, 2, 19, 30))
             .review("Great route!")
@@ -69,7 +72,7 @@ public class RunningRouteTest {
     assertNotNull(targetRoute);
     assertTrue(targetRoute.getId() instanceof UUID);
     assertEquals("Test Route", targetRoute.getRouteName());
-    assertEquals(2, targetRoute.getArrayOfPos().size());
+    assertEquals(2, targetRoute.getArrayOfPos().getCoordinates().length);
     assertEquals("Great route!", targetRoute.getReview());
     assertEquals(10.5f, targetRoute.getDistance());
     assertEquals("Test Location", targetRoute.getLocation());

@@ -1,6 +1,8 @@
-package com.runnerpia.boot.running_route.dto;
+package com.runnerpia.boot.running_route.dto.request;
 
+import com.runnerpia.boot.running_route.dto.CoordinateDto;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
+import com.runnerpia.boot.util.GeometryConverter;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,7 +17,6 @@ import java.util.UUID;
 public class CreateRunningRouteRequestDto {
   private List<CoordinateDto> arrayOfPos;
   private String routeName;
-  private Float distance;
   private String review;
   private String location;
   private String runningTime;
@@ -29,8 +30,8 @@ public class CreateRunningRouteRequestDto {
   public RunningRoute toEntity() {
     return RunningRoute.builder()
             .routeName(routeName)
-            .arrayOfPos(arrayOfPos)
-            .distance(distance)
+            .arrayOfPos(GeometryConverter.convertToLineString(arrayOfPos))
+            .distance(GeometryConverter.convertToLineString(arrayOfPos).getLength())
             .review(review)
             .location(location)
             .runningTime(LocalTime.parse(runningTime))

@@ -1,6 +1,12 @@
 package com.runnerpia.boot.running_route.service;
 
-import com.runnerpia.boot.running_route.dto.*;
+import com.runnerpia.boot.running_route.dto.request.CreateRunningRouteRequestDto;
+import com.runnerpia.boot.running_route.dto.response.SearchNearbyRouteResponseDto;
+import com.runnerpia.boot.running_route.dto.response.TagRecordResponseDto;
+import com.runnerpia.boot.running_route.dto.simple.CheckRouteResponseDto;
+import com.runnerpia.boot.running_route.dto.simple.CheckRunningExperienceDto;
+import com.runnerpia.boot.running_route.dto.simple.CreateRunningRouteResponseDto;
+import com.runnerpia.boot.running_route.dto.response.MainRouteDetailResponseDto;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.running_route.entities.enums.TagStatus;
 import com.runnerpia.boot.running_route.repository.RunningRouteRepository;
@@ -10,6 +16,7 @@ import com.runnerpia.boot.user.service.UserService;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Point;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +35,7 @@ public class RunningRouteService {
   private final ImageService imageService;
   private final TagService tagService;
   private final UserService userService;
+  private final GeometryService geometryService;
   private static final User dummyUser = User.builder().userId("test").nickname("test").build(); // 임시 데이터
 
   @Transactional
@@ -41,6 +49,14 @@ public class RunningRouteService {
     });
   }
 
+  private void isValidUUID(String id) {
+    try {
+      UUID.fromString(id);
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("유효하지 않은 UUID입니다: " + id);
+    }
+  }
+
   @Transactional(readOnly = true)
   public CheckRouteResponseDto checkDuplicatedRouteName(String routeName) {
     boolean isExists = runningRouteRepository.existsByRouteName(routeName);
@@ -49,12 +65,14 @@ public class RunningRouteService {
 
   @Transactional(readOnly = true)
   public CheckRouteResponseDto existsById(String id) {
+    isValidUUID(id);
     boolean isExists = runningRouteRepository.existsById(UUID.fromString(id));
     return new CheckRouteResponseDto(isExists);
   }
 
   @Transactional(readOnly = true)
   public RunningRoute findById(String id) {
+    isValidUUID(id);
     return runningRouteRepository.findById(UUID.fromString(id))
             .orElseThrow(() -> new NoResultException("해당 ID 값을 가진 경로는 존재하지 않아요."));
   }
@@ -96,9 +114,7 @@ public class RunningRouteService {
             .filter(tags -> !tags.isEmpty())
             .ifPresent(tags -> tagService.addRecommendTags(tags, response));
 
-    return CreateRunningRouteResponseDto.builder()
-            .id(response.getId())
-            .build();
+    return new CreateRunningRouteResponseDto(response.getId());
   }
 
   @Transactional(readOnly = true)
@@ -107,7 +123,7 @@ public class RunningRouteService {
 
     MainRouteDetailResponseDto response = route.toResponse();
 
-    List<RunningRoute> allRoutes = runningRouteRepository.findAllByIdOrMainRoute(route.getId(), route);
+    Set<RunningRoute> allRoutes = findAllRelatedRoutesInList(List.of(route));
 
     List<String> images = imageService.findAllByRunningRouteList(allRoutes)
             .stream()
@@ -116,10 +132,10 @@ public class RunningRouteService {
 
     response.setImages(images.isEmpty() || images == null ? null : images);
 
-    Map<String, Long> secureTags = tagService.orderTagRecordsByRunningRoute(TagStatus.SECURE, allRoutes);
+    List<TagRecordResponseDto> secureTags = tagService.orderTagRecordsByRunningRoute(TagStatus.SECURE, allRoutes);
     response.setSecureTags(secureTags.isEmpty() || secureTags.size() == 0 ? null : secureTags);
 
-    Map<String, Long> recommendTags = tagService.orderTagRecordsByRunningRoute(TagStatus.RECOMMEND, allRoutes);
+    List<TagRecordResponseDto> recommendTags = tagService.orderTagRecordsByRunningRoute(TagStatus.RECOMMEND, allRoutes);
     response.setRecommendTags(recommendTags.isEmpty() || recommendTags.size() == 0 ? null : recommendTags);
 
     return response;
@@ -137,9 +153,7 @@ public class RunningRouteService {
     tagService.updateSecureTags(request.getSecureTags(), targetRoute);
     tagService.updateRecommendTags(request.getRecommendTags(), targetRoute);
 
-    return CreateRunningRouteResponseDto.builder()
-            .id(targetRoute.getId())
-            .build();
+    return new CreateRunningRouteResponseDto(targetRoute.getId());
   }
 
   @Transactional
@@ -176,5 +190,10 @@ public class RunningRouteService {
   public List<MainRouteDetailResponseDto> getAllSubRoutes() {
     Predicate<RunningRoute> isSubRoute = runningRoute -> runningRoute.getMainRoute() != null;
     return getAllRoutesByFilter(isSubRoute);
+  }
+
+  public List<SearchNearbyRouteResponseDto> getNearbyRouteList(Double longitude, Double latitude, int range) {
+    Point point = geometryService.createPoint(latitude, longitude);
+    return runningRouteRepository.findNearbyRouteList(point, range);
   }
 }
