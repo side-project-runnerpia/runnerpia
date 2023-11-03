@@ -1,6 +1,7 @@
-package com.runnerpia.boot.running_route.dto;
+package com.runnerpia.boot.running_route.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.runnerpia.boot.running_route.dto.CoordinateDto;
 import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
 import lombok.Builder;
 import lombok.Data;
@@ -15,14 +16,16 @@ import java.util.UUID;
 public class MainRouteDetailResponseDto {
   private List<CoordinateDto> arrayOfPos;
   private String routeName;
-  private Float distance;
+  private Double distance;
   private String review;
   private String location;
   private String runningTime;
   private String runningDate;
   private List<String> images;
-  private Map<String, Long> recommendTags;
-  private Map<String, Long> secureTags;
+  private List<TagRecordResponseDto> recommendTags;
+//  private Map<String, Long> recommendTags;
+//  private Map<String, Long> secureTags;
+  private List<TagRecordResponseDto> secureTags;
   private UUID mainRoute;
   private UserInfoReqDto user;
 }

@@ -1,6 +1,6 @@
 package com.runnerpia.boot.running_route.controller;
 
-import com.runnerpia.boot.running_route.dto.TagRecordResponseDto;
+import com.runnerpia.boot.running_route.dto.response.TagRecordResponseDto;
 import com.runnerpia.boot.running_route.entities.enums.TagStatus;
 import com.runnerpia.boot.running_route.service.TagService;
 import io.swagger.v3.oas.annotations.Operation;

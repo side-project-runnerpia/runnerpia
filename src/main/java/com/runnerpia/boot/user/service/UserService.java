@@ -87,6 +87,7 @@ public class UserService {
     public User createUser(UserInfoReqDto request) {
         User user = User.builder()
                 .userId(request.getUserId())
+                .nickname(request.getNickname())
                 .build();
         return userRepository.save(user);
     }

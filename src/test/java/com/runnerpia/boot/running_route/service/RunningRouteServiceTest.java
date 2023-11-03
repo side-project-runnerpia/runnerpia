@@ -4,6 +4,7 @@ import com.runnerpia.boot.running_route.dto.CoordinateDto;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.running_route.repository.RunningRouteRepository;
 import com.runnerpia.boot.user.entities.User;
+import com.runnerpia.boot.util.GeometryConverter;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,8 @@ public class RunningRouteServiceTest {
   private RunningRoute subRoute3;
   private User targetUser;
 
+  private List<CoordinateDto> sampleCoordinate = Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234));
+
   @BeforeEach
   void initData() {
     // given
@@ -46,11 +49,10 @@ public class RunningRouteServiceTest {
 
     mainRoute = RunningRoute.builder()
             .routeName("main_route")
-            .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+            .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
             .runningTime(LocalTime.of(1, 30, 33))
             .runningDate(LocalDateTime.of(2023, 12, 2, 19, 30))
             .review("main_route!")
-            .distance(10.5f)
             .mainRoute(null)
             .location("Test Location")
             .user(targetUser)
@@ -59,11 +61,10 @@ public class RunningRouteServiceTest {
 
     subRoute1 = RunningRoute.builder()
             .routeName("sub_route1")
-            .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+            .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
             .runningTime(LocalTime.of(1, 30, 33))
             .runningDate(LocalDateTime.of(2023, 12, 2, 19, 30))
             .review("sub_route1!")
-            .distance(10.5f)
             .mainRoute(mainRoute)
             .location("Test Location1")
             .user(targetUser)
@@ -72,11 +73,10 @@ public class RunningRouteServiceTest {
 
     subRoute2 = RunningRoute.builder()
             .routeName("sub_route2")
-            .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+            .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
             .runningTime(LocalTime.of(1, 30, 33))
             .runningDate(LocalDateTime.of(2023, 12, 2, 19, 30))
             .review("sub_route2!")
-            .distance(10.5f)
             .mainRoute(mainRoute)
             .location("Test Location2")
             .user(targetUser)
@@ -85,11 +85,10 @@ public class RunningRouteServiceTest {
 
     subRoute3 = RunningRoute.builder()
             .routeName("sub_route3")
-            .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+            .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
             .runningTime(LocalTime.of(1, 30, 33))
             .runningDate(LocalDateTime.of(2023, 12, 2, 19, 30))
             .review("sub_route3!")
-            .distance(10.5f)
             .mainRoute(mainRoute)
             .location("Test Location3")
             .user(targetUser)

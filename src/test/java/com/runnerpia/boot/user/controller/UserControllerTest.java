@@ -74,7 +74,7 @@ class UserControllerTest {
         Tag secureTag = new Tag(SECURE_TAG, TagStatus.SECURE);
         savedSecureTag = tagRepository.save(secureTag);
 
-        Tag recommendedTag = new Tag(RECOMMENDED_TAG, TagStatus.SECURE);
+        Tag recommendedTag = new Tag(RECOMMENDED_TAG, TagStatus.RECOMMEND);
         savedRecommendedTag = tagRepository.save(recommendedTag);
 
         List<String> secureTags = new ArrayList<>();

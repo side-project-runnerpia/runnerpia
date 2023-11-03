@@ -9,6 +9,7 @@ import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
 import com.runnerpia.boot.user.entities.User;
 import com.runnerpia.boot.user.service.BookmarkService;
 import com.runnerpia.boot.user.service.UserService;
+import com.runnerpia.boot.util.GeometryConverter;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,6 +46,7 @@ class BookmarkControllerTest {
     RunningRouteRepository runningRouteRepository;
 
     private static final String BASE_URL = "/user/bookmark";
+    private List<CoordinateDto> sampleCoordinate = Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234));
     private User user;
     private UUID userUUID;
     private UUID runnigRouteUUID;
@@ -62,11 +65,10 @@ class BookmarkControllerTest {
         RunningRoute runningRoute = RunningRoute
                 .builder()
                 .routeName("Test Route1")
-                .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+                .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
                 .runningTime(LocalTime.of(1, 30, 33))
                 .runningDate(LocalDateTime.of(2023, 12, 2, 1,30,33))
                 .review("Great route!")
-                .distance(10.5f)
                 .location("Test Location")
                 .user(user)
                 .build();
@@ -134,11 +136,10 @@ class BookmarkControllerTest {
         RunningRoute runningRoute2 = RunningRoute
                 .builder()
                 .routeName("Test Route2")
-                .arrayOfPos(Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234)))
+                .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
                 .runningTime(LocalTime.of(1, 30, 33))
                 .runningDate(LocalDateTime.of(2023, 12, 2, 1,30,33))
                 .review("Great route!")
-                .distance(10.5f)
                 .location("Test Location")
                 .user(user)
                 .build();

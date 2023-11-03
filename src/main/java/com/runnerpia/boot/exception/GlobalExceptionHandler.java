@@ -36,4 +36,10 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
             .body(ex.getMessage());
   }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ex.getMessage());
+  }
 }

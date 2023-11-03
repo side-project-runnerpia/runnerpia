@@ -1,4 +1,4 @@
-package com.runnerpia.boot.running_route.dto;
+package com.runnerpia.boot.running_route.dto.simple;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

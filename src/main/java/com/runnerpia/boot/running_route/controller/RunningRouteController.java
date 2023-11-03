@@ -1,6 +1,11 @@
 package com.runnerpia.boot.running_route.controller;
 
-import com.runnerpia.boot.running_route.dto.*;
+import com.runnerpia.boot.running_route.dto.request.CreateRunningRouteRequestDto;
+import com.runnerpia.boot.running_route.dto.response.SearchNearbyRouteResponseDto;
+import com.runnerpia.boot.running_route.dto.simple.CheckRouteResponseDto;
+import com.runnerpia.boot.running_route.dto.simple.CheckRunningExperienceDto;
+import com.runnerpia.boot.running_route.dto.simple.CreateRunningRouteResponseDto;
+import com.runnerpia.boot.running_route.dto.response.MainRouteDetailResponseDto;
 import com.runnerpia.boot.running_route.service.RunningRouteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,8 +38,7 @@ public class RunningRouteController {
     return ResponseEntity.ok(runningRouteService.existsById(id));
   }
 
-  @Operation(summary = "경로 등록")
-  @ApiResponse(responseCode = "201", description = "Created")
+  @Operation(summary = "경로 등록", responses = @ApiResponse(responseCode = "201", description = "Created"))
   @PostMapping
   public ResponseEntity<Void> create(
           @RequestPart(value = "files", required = false) List<MultipartFile> file,
@@ -45,7 +49,7 @@ public class RunningRouteController {
 
     URI location = ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/main/{id}")
-            .buildAndExpand(response.getId())
+            .buildAndExpand(response.id())
             .toUri();
 
     return ResponseEntity.created(location).build();
@@ -73,6 +77,14 @@ public class RunningRouteController {
   @GetMapping("/allSubRoute")
   public ResponseEntity<List<MainRouteDetailResponseDto>> getAllSubRoute(@RequestBody(required = false) String user) {
     return ResponseEntity.ok(runningRouteService.getAllSubRoutes());
+  }
+
+  @Operation(summary = "위치 검색", description = "사용자 현재 위치 위도, 경도 파라미터로 받으면 요청한 반경 내 모든 경로 리턴")
+  @GetMapping("/searchLocation")
+  public ResponseEntity<List<SearchNearbyRouteResponseDto>> getAllRouteWithCurrentLocation(
+          @RequestParam(value = "latitude") Double latitude, @RequestParam(value = "longitude") Double longitude, @RequestParam(value = "range") int range
+  ) {
+    return ResponseEntity.ok(runningRouteService.getNearbyRouteList(longitude, latitude, range));
   }
 
   @Operation(summary = "등록한 경로 정보 수정")

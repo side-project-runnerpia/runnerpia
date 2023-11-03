@@ -12,6 +12,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "tags")
 @Getter
+@NoArgsConstructor
 @ToString
 public class Tag {
   @Id
@@ -27,15 +28,10 @@ public class Tag {
 
   @Enumerated(EnumType.STRING)
   @Column(columnDefinition = "ENUM('SECURE', 'RECOMMEND') DEFAULT 'RECOMMEND'")
-  @NotBlank
   private TagStatus status;
 
   public Tag(String description, TagStatus status) {
     this.description = description;
     this.status = status;
-  }
-
-  public Tag() {
-
   }
 }
