@@ -17,7 +17,6 @@ import org.checkerframework.common.aliasing.qual.Unique;
 import org.hibernate.annotations.DynamicUpdate;
 import org.hibernate.annotations.GenericGenerator;
 import org.locationtech.jts.geom.LineString;
-import org.locationtech.jts.geom.Point;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -41,9 +40,9 @@ public class RunningRoute extends BaseTimeEntity {
     @Convert(converter = StringToUuidConverter.class)
     private UUID id;
 
-    @Column(length = 10, unique = true)
+    @Column(length = 20, unique = true)
     @Unique
-    @Size(max = 10, message = "경로 이름은 10자 이하로 입력해 주세요.")
+    @Size(max = 20, message = "경로 이름은 10자 이하로 입력해 주세요.")
     @Schema(description = "경로 이름", example = "광화문 청계천 앞 마당길")
     private String routeName;
 

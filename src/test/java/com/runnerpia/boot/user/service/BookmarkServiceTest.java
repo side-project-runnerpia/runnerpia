@@ -61,7 +61,6 @@ class BookmarkServiceTest {
                 .runningTime(LocalTime.of(1, 30, 33))
                 .runningDate(LocalDateTime.of(2023, 12, 2, 1,30,33))
                 .review("Great route!")
-                .distance(10.5f)
                 .location("Test Location")
                 .user(user)
                 .build();
@@ -104,7 +103,6 @@ class BookmarkServiceTest {
                 .runningTime(LocalTime.of(1, 30, 33))
                 .runningDate(LocalDateTime.of(2023, 12, 2, 1,30,33))
                 .review("Great route!")
-                .distance(10.5f)
                 .location("Test Location")
                 .user(user)
                 .build();

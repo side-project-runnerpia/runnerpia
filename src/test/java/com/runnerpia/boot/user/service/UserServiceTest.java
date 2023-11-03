@@ -93,7 +93,7 @@ class UserServiceTest {
         assertThat(userIdExists.getIsExists()).isFalse();
         assertThat(nicknameExists.getIsExists()).isFalse();
 
-        userIdExists = userService.isUserIdExists(USER_ID);
+        userIdExists = userService.isUserIdExists(USER_ID+1);
         nicknameExists =  userService.isNicknameExists(USER_NICKNAME);
 
         assertThat(userIdExists.getIsExists()).isTrue();

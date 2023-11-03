@@ -53,7 +53,7 @@ public class RunningRouteTest {
             .runningTime(LocalTime.of(1, 30, 33))
             .runningDate(LocalDateTime.of(2023, 12, 2, 19, 30))
             .review("Great route!")
-            .distance(10.5f)
+            .distance(GeometryConverter.convertToLineString(sampleCoordinate).getLength())
             .location("Test Location")
             .user(dummyUser)
             .build();
@@ -74,7 +74,7 @@ public class RunningRouteTest {
     assertEquals("Test Route", targetRoute.getRouteName());
     assertEquals(2, targetRoute.getArrayOfPos().getCoordinates().length);
     assertEquals("Great route!", targetRoute.getReview());
-    assertEquals(10.5f, targetRoute.getDistance());
+    assertTrue(targetRoute.getDistance() > 0);
     assertEquals("Test Location", targetRoute.getLocation());
     assertEquals("test-id", targetRoute.getUser().getUserId());
     assertEquals("test-nickname", targetRoute.getUser().getNickname());

@@ -9,7 +9,7 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -28,3 +28,16 @@ logging:
       springframework:
         data:
           jpa: debug
+
+cloud:
+  aws:
+    s3:
+      bucket: runnerpia-bucket
+    credentials:
+      access-key: ENC(ZH/3p5suT6X+L4TeUnSE2damLR6I1KNxDxT+aOTkn8I=)
+      secret-key: ENC(siR3TJx0waQ/vqqfNcEMTg8x5mgqt8oiSMGwowvymBBZ4q97+UkfrQradTLMk5f/qCLZCX3KcVo=)
+    region:
+      static: ap-northeast-2
+      auto: false
+    stack:
+      auto: false

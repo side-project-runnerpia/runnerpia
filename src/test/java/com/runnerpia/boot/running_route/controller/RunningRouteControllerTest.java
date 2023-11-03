@@ -68,7 +68,6 @@ public class RunningRouteControllerTest {
             .runningTime(LocalTime.of(1, 30, 33))
             .runningDate(LocalDateTime.of(2023, 12, 2, 19, 30))
             .review("Great route!")
-            .distance(10.5f)
             .location("Test Location")
             .user(dummyUser)
             .build();
@@ -79,7 +78,6 @@ public class RunningRouteControllerTest {
             .runningTime(String.valueOf(LocalTime.of(1, 30, 33)))
             .runningDate(String.valueOf(LocalDate.of(2023, 11, 11)))
             .review("Great route!")
-            .distance(10.5f)
             .location("Test Location")
             .user(dummyUser.getId())
             .build();
