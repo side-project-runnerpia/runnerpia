@@ -9,10 +9,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user/bookmark")
@@ -23,10 +25,10 @@ public class BookmarkController {
 
     @Operation(summary = "모든 북마크 가져오기")
     @GetMapping("/getAll")
-    public ResponseEntity<BookmarkInfoRespDto> getAllUserBookmark(@RequestBody BookmarkInfoReqDto request) {
+    public ResponseEntity<BookmarkInfoRespDto> getAllUserBookmark(Authentication authentication) {
 
-        //TODO: 토큰에서 uuid 를 꺼내는 방식추가 필요, 토큰 구현전까지 @RequestBody 받는다고 가정하고 진행
-        BookmarkInfoRespDto response = bookmarkService.getAllUserBookmark(request.getUserId());
+        BookmarkInfoRespDto response =
+                bookmarkService.getAllUserBookmark(authentication.getName());
 
         return ResponseEntity.ok(response);
     }
@@ -35,11 +37,10 @@ public class BookmarkController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Created")})
     @PostMapping("/create")
-    public ResponseEntity<Void> createBookmark(@RequestBody BookmarkInfoReqDto request) {
+    public ResponseEntity<Void> createBookmark(@RequestBody BookmarkInfoReqDto request,
+                                               Authentication authentication) {
 
-        //TODO: 토큰에서 uuid 를 꺼내는 방식추가 필요
-
-        Bookmark savedBookmark = bookmarkService.createBookmark(request);
+        Bookmark savedBookmark = bookmarkService.createBookmark(request, authentication.getName());
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -52,11 +53,9 @@ public class BookmarkController {
 
     @Operation(summary = "북마크 삭제")
     @PostMapping("/delete")
-    public ResponseEntity<?> deleteBookmark(@RequestBody BookmarkInfoReqDto request) {
+    public ResponseEntity<?> deleteBookmark(@RequestBody BookmarkInfoReqDto request, Authentication authentication) {
 
-        //TODO: 토큰에서 uuid 를 꺼내는 방식추가 필요
-
-        bookmarkService.deleteBookmark(request);
+        bookmarkService.deleteBookmark(request, authentication.getName());
         return ResponseEntity.ok().build();
     }
 }

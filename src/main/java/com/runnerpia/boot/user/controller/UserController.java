@@ -1,16 +1,14 @@
 package com.runnerpia.boot.user.controller;
 
-import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
-import com.runnerpia.boot.user.dto.request.UserSignInReqDto;
 import com.runnerpia.boot.user.dto.response.UserInfoCheckRespDto;
 import com.runnerpia.boot.user.dto.response.UserInfoRespDto;
-import com.runnerpia.boot.user.dto.response.UserSignInRespDto;
-import com.runnerpia.boot.user.entities.User;
 import com.runnerpia.boot.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/user")
@@ -35,35 +33,20 @@ public class UserController {
 
     @Operation(summary = "추천경로 사용횟수 증가")
     @PostMapping("/increaseUseRecommended")
-    public ResponseEntity<?> increaseUseRecommended() {
+    public ResponseEntity<?> increaseUseRecommended(Authentication authentication) {
 
-        //TODO: 토큰에서 id값을 꺼내서 update 하는 방식으로 변경해야함(현재는 임시 값으로)
-        User user = userService.createUser(UserInfoReqDto.builder().userId("userId").build());
-
-        userService.increaseUseRecommended(user.getId());
+        userService.increaseUseRecommended(authentication.getName());
         return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "추천경로 사용횟수 가져오기")
     @GetMapping("/getUseRecommended")
-    public ResponseEntity<UserInfoRespDto> getUseRecommended() {
+    public ResponseEntity<UserInfoRespDto> getUseRecommended(Authentication authentication) {
 
-        //TODO: 토큰에서 id값을 꺼내서 update 하는 방식으로 변경해야함(현재는 임시 값으로)
-        User user = userService.createUser(UserInfoReqDto.builder().userId("userId").build());
-
-        UserInfoRespDto response = userService.getUseRecommended(user.getId());
+        UserInfoRespDto response = userService.getUseRecommended(authentication.getName());
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "회원가입")
-    @PostMapping("/signIn")
-    public ResponseEntity<UserSignInRespDto> getUseRecommended(@RequestBody UserSignInReqDto request) {
 
-        //TODO: 토큰에서 id값을 꺼내서 update 하는 방식으로 변경해야함(현재는 임시 값으로)
-
-        UserSignInRespDto response = userService.signIn(request);
-
-        return ResponseEntity.ok(response);
-    }
 
 }

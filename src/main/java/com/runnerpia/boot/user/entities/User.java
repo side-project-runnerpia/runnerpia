@@ -1,5 +1,6 @@
 package com.runnerpia.boot.user.entities;
 
+import com.runnerpia.boot.auth.jwt.Authority;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.util.BaseTimeEntity;
 import com.runnerpia.boot.util.StringToUuidConverter;
@@ -76,5 +77,8 @@ public class User extends BaseTimeEntity {
             , cascade = CascadeType.PERSIST
     )
     private List<UserRecommendedTag> userRecommendedTags;
+
+    @Enumerated(EnumType.STRING)
+    private Authority role;
 
 }

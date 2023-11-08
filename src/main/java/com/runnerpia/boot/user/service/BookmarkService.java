@@ -40,9 +40,9 @@ public class BookmarkService {
     }
     
     @Transactional
-    public Bookmark createBookmark(BookmarkInfoReqDto request) {
+    public Bookmark createBookmark(BookmarkInfoReqDto request, String userUUID) {
 
-        User user = validateAndGetUser(request.getUserId());
+        User user = validateAndGetUser(userUUID);
         RunningRoute runningRoute = validateAndGetRunningRoute(request.getRunningRouteId());
 
         Bookmark bookmark = request.toEntity(user, runningRoute);
@@ -51,9 +51,9 @@ public class BookmarkService {
     }
 
     @Transactional
-    public Long deleteBookmark(BookmarkInfoReqDto request) {
+    public Long deleteBookmark(BookmarkInfoReqDto request, String userUUID) {
 
-        User user = validateAndGetUser(request.getUserId());
+        User user = validateAndGetUser(userUUID);
         RunningRoute runningRoute = validateAndGetRunningRoute(request.getRunningRouteId());
 
         return bookmarkRepository.deleteByUserAndRunningRoute(user, runningRoute);

@@ -15,7 +15,6 @@ import lombok.NoArgsConstructor;
 public class BookmarkInfoReqDto {
 
     private String runningRouteId;
-    private String userId;
 
     public Bookmark toEntity(User user, RunningRoute runningRoute) {
         return Bookmark.builder()
