@@ -26,16 +26,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String accessToken = resolveToken(request);
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String requestURI = httpRequest.getRequestURI();
-        System.out.println("requestURI : " + requestURI);
-        System.out.println(!requestURI.contains("/auth/"));
-        System.out.println(StringUtils.hasText(accessToken));
-
-        System.out.println(false && false);
+        String requestURI = request.getRequestURI();
 
         if (StringUtils.hasText(accessToken) && !requestURI.contains("/auth/")) {
-            System.out.println("진입함?");
             try{
                 Jwts.parserBuilder()
                         .setSigningKey(jwtProvider.getKey())
@@ -48,8 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             catch (ExpiredJwtException e){
                 request.setAttribute("exception", ErrorCode.EXPIRED_TOKEN.getCode());
             } catch (MalformedJwtException e){
-                request.setAttribute("exception", ErrorCode.WRONG_TYPE_TOKEN.getCode());
-            } catch (SignatureException e){
                 request.setAttribute("exception", ErrorCode.WRONG_TYPE_TOKEN.getCode());
             }
         }

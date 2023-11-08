@@ -1,22 +1,27 @@
 package com.runnerpia.boot.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.runnerpia.boot.auth.jwt.JwtProperties;
+import com.runnerpia.boot.auth.service.AuthService;
 import com.runnerpia.boot.running_route.dto.CoordinateDto;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.running_route.repository.RunningRouteRepository;
 import com.runnerpia.boot.user.dto.request.BookmarkInfoReqDto;
 import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
+import com.runnerpia.boot.user.dto.request.UserLoginReqDto;
 import com.runnerpia.boot.user.entities.User;
 import com.runnerpia.boot.user.service.BookmarkService;
 import com.runnerpia.boot.user.service.UserService;
 import com.runnerpia.boot.util.GeometryConverter;
 import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -44,23 +49,26 @@ class BookmarkControllerTest {
     UserService userService;
     @Autowired
     RunningRouteRepository runningRouteRepository;
+    @Autowired
+    AuthService authService;
 
     private static final String BASE_URL = "/user/bookmark";
+    private static final String USER_ID = "userId";
+    private static final String USER_NICKNAME = "nickname";
     private List<CoordinateDto> sampleCoordinate = Arrays.asList(new CoordinateDto(37.1234, -122.5678), new CoordinateDto(37.5678, -122.1234));
-    private User user;
+    private User saveUser;
     private UUID userUUID;
     private UUID runnigRouteUUID;
     private BookmarkInfoReqDto request;
     private BookmarkInfoReqDto badRequest;
+    private String accessToken;
+
 
     @BeforeEach
     void initData() {
-        user = userService.createUser(UserInfoReqDto
-                .builder().userId("userId")
-                .build()
-        );
+        saveUser = userService.createUser(new UserInfoReqDto(USER_ID, USER_NICKNAME));
 
-        userUUID = user.getId();
+        userUUID = saveUser.getId();
 
         RunningRoute runningRoute = RunningRoute
                 .builder()
@@ -70,20 +78,26 @@ class BookmarkControllerTest {
                 .runningDate(LocalDateTime.of(2023, 12, 2, 1,30,33))
                 .review("Great route!")
                 .location("Test Location")
-                .user(user)
+                .user(saveUser)
                 .build();
         RunningRoute saveRunningRoute = runningRouteRepository.save(runningRoute);
         runnigRouteUUID = saveRunningRoute.getId();
 
         request = BookmarkInfoReqDto
                 .builder().runningRouteId(runnigRouteUUID.toString())
-                .userId(userUUID.toString())
                 .build();
 
         badRequest = BookmarkInfoReqDto
                 .builder().runningRouteId(UUID.randomUUID().toString())
-                .userId(UUID.randomUUID().toString())
                 .build();
+
+        HttpHeaders header = authService.login(new UserLoginReqDto(USER_ID));
+        accessToken = header.getFirst(JwtProperties.HEADER_STRING);
+    }
+
+    @AfterEach
+    void tearDown() {
+        authService.logout(accessToken);
     }
 
     @Test
@@ -94,7 +108,8 @@ class BookmarkControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                 .post(BASE_URL + "/create")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(request)))
+                .content(mapper.writeValueAsString(request))
+                        .header(JwtProperties.HEADER_STRING, accessToken))
                 .andExpect(status().isCreated())
                 .andReturn();
 
@@ -102,7 +117,8 @@ class BookmarkControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .post(BASE_URL + "/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(badRequest)))
+                        .content(mapper.writeValueAsString(badRequest))
+                        .header(JwtProperties.HEADER_STRING, accessToken))
                 .andExpect(status().isNotFound())
                 .andReturn();
     }
@@ -112,11 +128,12 @@ class BookmarkControllerTest {
     public void deleteBookmarkTest() throws Exception {
 
         //정상의 경우
-        bookmarkService.createBookmark(request);
+        bookmarkService.createBookmark(request, userUUID.toString());
         mockMvc.perform(MockMvcRequestBuilders
                         .post(BASE_URL + "/delete")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(request)))
+                        .content(mapper.writeValueAsString(request))
+                        .header(JwtProperties.HEADER_STRING, accessToken))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -124,7 +141,8 @@ class BookmarkControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                         .post(BASE_URL + "/delete")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(badRequest)))
+                        .content(mapper.writeValueAsString(badRequest))
+                        .header(JwtProperties.HEADER_STRING, accessToken))
                 .andExpect(status().isNotFound())
                 .andReturn();
     }
@@ -133,47 +151,15 @@ class BookmarkControllerTest {
     @DisplayName("유저의 모든 북마크 가져오기 테스트")
     void getAllUserBookmarkTest() throws Exception {
 
-        RunningRoute runningRoute2 = RunningRoute
-                .builder()
-                .routeName("Test Route2")
-                .arrayOfPos(GeometryConverter.convertToLineString(sampleCoordinate))
-                .runningTime(LocalTime.of(1, 30, 33))
-                .runningDate(LocalDateTime.of(2023, 12, 2, 1,30,33))
-                .review("Great route!")
-                .location("Test Location")
-                .user(user)
-                .build();
-
-        RunningRoute saveRunningRoute = runningRouteRepository.save(runningRoute2);
-        UUID runningRouteUUID2 = saveRunningRoute.getId();
-
-        BookmarkInfoReqDto newRequest = BookmarkInfoReqDto
-                .builder()
-                .runningRouteId(saveRunningRoute.getId().toString())
-                .userId(userUUID.toString())
-                .build();
-
-        bookmarkService.createBookmark(request);
-        bookmarkService.createBookmark(newRequest);
-
-        //정상의 경우
         mockMvc.perform(MockMvcRequestBuilders
                         .get(BASE_URL + "/getAll")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(request)))
+                        .content(mapper.writeValueAsString(request))
+                        .header(JwtProperties.HEADER_STRING, accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("runningRouteIdList").exists())
                 .andReturn();
 
-        //에러가 발생한 경우
-        mockMvc.perform(MockMvcRequestBuilders
-                        .get(BASE_URL + "/getAll")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(mapper.writeValueAsString(badRequest)))
-                .andExpect(status().isNotFound())
-                .andReturn();
-
     }
-
 
 }

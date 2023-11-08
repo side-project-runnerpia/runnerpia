@@ -46,7 +46,4 @@ public class UserController {
         UserInfoRespDto response = userService.getUseRecommended(authentication.getName());
         return ResponseEntity.ok(response);
     }
-
-
-
 }

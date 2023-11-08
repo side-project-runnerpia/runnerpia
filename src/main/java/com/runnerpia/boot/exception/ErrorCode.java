@@ -15,8 +15,8 @@ public enum ErrorCode {
     UNSUPPORTED_TOKEN(1005, "변조된 토큰입니다."),
     ACCESS_DENIED(1006, "권한이 없습니다.");
 
-    private Integer code;
-    private String message;
+    private final Integer code;
+    private final String message;
 
 
 }

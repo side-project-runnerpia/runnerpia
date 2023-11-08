@@ -1,8 +1,6 @@
 package com.runnerpia.boot.user.service;
 
-import com.runnerpia.boot.auth.jwt.JwtProvider;
 import com.runnerpia.boot.auth.jwt.Authority;
-import com.runnerpia.boot.auth.repository.RefreshTokenRepository;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
 import com.runnerpia.boot.user.dto.request.UserSignInReqDto;
@@ -26,9 +24,6 @@ import java.util.UUID;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final UserTagService userTagService;
-        private final RefreshTokenRepository refreshTokenRepository;
-    private final JwtProvider jwtProvider;
 
     public UserInfoCheckRespDto isUserIdExists(String userId) {
         boolean isExists = userRepository.existsByUserId(userId);
@@ -39,8 +34,6 @@ public class UserService {
         boolean isExists = userRepository.existsByNickname(nickname);
         return new UserInfoCheckRespDto(isExists);
     }
-
-
 
     @Transactional
     public void increaseUseRecommended(String userUUID) {

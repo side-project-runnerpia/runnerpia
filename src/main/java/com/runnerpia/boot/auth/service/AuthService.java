@@ -4,6 +4,7 @@ import com.runnerpia.boot.auth.entities.Token;
 import com.runnerpia.boot.auth.jwt.JwtProperties;
 import com.runnerpia.boot.auth.jwt.JwtProvider;
 import com.runnerpia.boot.auth.dto.TokenDto;
+import com.runnerpia.boot.user.dto.request.UserLoginReqDto;
 import com.runnerpia.boot.user.dto.request.UserSignInReqDto;
 import com.runnerpia.boot.user.dto.response.UserSignInRespDto;
 import com.runnerpia.boot.user.entities.User;
@@ -11,7 +12,6 @@ import com.runnerpia.boot.user.repository.UserRepository;
 import com.runnerpia.boot.user.service.UserTagService;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,13 +32,15 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final UserTagService userTagService;
     private final UserRepository userRepository;
-    private final RefreshTokenService refreshTokenService;
+    private final TokenService tokenService;
     @Transactional
     public UserSignInRespDto signIn(UserSignInReqDto request) {
 
         User user = userRepository.save(request.toEntity());
         List<String> userSecureTags = userTagService.createUserSecureTags(request, user);
         List<String> userRecommendedTags = userTagService.createUserRecommendedTags(request, user);
+
+
 
         return UserSignInRespDto.builder()
                 .userId(user.getUserId())
@@ -50,17 +52,17 @@ public class AuthService {
     }
 
     @Transactional
-    public HttpHeaders login(String userId) {
+    public HttpHeaders login(UserLoginReqDto request) {
 
-        Optional<User> findUser = userRepository.findByUserId(userId);
+        Optional<User> findUser = userRepository.findByUserId(request.getUserId());
 
-        if(findUser == null) {
+        if(findUser.isEmpty()) {
             throw new NoSuchElementException("회원가입이 필요합니다.");
         }
 
         String userUUID = findUser.get().getId().toString();
         TokenDto tokenDto = jwtProvider.generateTokenDto(userUUID);
-        refreshTokenService.saveAccessAndRefreshToken(userUUID, tokenDto.getAccessToken(), tokenDto.getRefreshToken());
+        tokenService.saveAccessAndRefreshToken(tokenDto.toEntity());
 
         return setTokenHeaders(tokenDto.getAccessToken());
     }
@@ -70,7 +72,7 @@ public class AuthService {
 
         String resolveToken = resolveToken(accessToken);
         Token token = validateRefreshToken(resolveToken);
-        String newAccessToken = refreshTokenService.regenerateAccessToken(resolveToken, token.getId());
+        String newAccessToken = tokenService.regenerateAccessToken(resolveToken, token.getId());
 
         return setTokenHeaders(newAccessToken);
     }
@@ -79,20 +81,20 @@ public class AuthService {
     public void logout(String accessToken) {
 
         String resolveToken = resolveToken(accessToken);
-        refreshTokenService.removeRefreshToken(resolveToken);
+        tokenService.removeRefreshToken(resolveToken);
     }
 
 
 
     private HttpHeaders setTokenHeaders(String accessToken) {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", JwtProperties.TOKEN_PREFIX + accessToken);
+        headers.add(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + accessToken);
         return headers;
     }
 
-    private Token validateRefreshToken(String accessToken){
+    public Token validateRefreshToken(String accessToken){
 
-        Token tokenEntity = refreshTokenService.getRefreshTokenEntity(accessToken);
+        Token tokenEntity = tokenService.getTokenEntity(accessToken);
 
         if(tokenEntity == null)
             throw new NoSuchElementException("토큰 정보가 존재하지 않습니다.재로그인이 필요합니다.");
@@ -108,7 +110,7 @@ public class AuthService {
         }
     }
 
-    private String resolveToken(String accessToken) {
+    public String resolveToken(String accessToken) {
 
         if (StringUtils.hasText(accessToken) && accessToken.startsWith(JwtProperties.TOKEN_PREFIX)) {
             return accessToken.substring(7);

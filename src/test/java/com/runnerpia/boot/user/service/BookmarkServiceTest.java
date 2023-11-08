@@ -70,7 +70,6 @@ class BookmarkServiceTest {
         request = BookmarkInfoReqDto
                 .builder()
                 .runningRouteId(runnigRouteUUID.toString())
-                .userId(userUUID.toString())
                 .build();
     }
 
@@ -78,7 +77,7 @@ class BookmarkServiceTest {
     @DisplayName("북마크 생성 테스트")
     void createBookmarkTest() {
 
-        Bookmark savedBookmark = bookmarkService.createBookmark(request);
+        Bookmark savedBookmark = bookmarkService.createBookmark(request, userUUID.toString());
         assertThat(savedBookmark.getRunningRoute().getId()).isEqualTo(runnigRouteUUID);
     }
 
@@ -86,8 +85,8 @@ class BookmarkServiceTest {
     @DisplayName("북마크 삭제 테스트")
     void deleteBookmarkTest() {
 
-        bookmarkService.createBookmark(request);
-        Long deleteCount = bookmarkService.deleteBookmark(request);
+        bookmarkService.createBookmark(request, userUUID.toString());
+        Long deleteCount = bookmarkService.deleteBookmark(request, userUUID.toString());
 
         assertThat(deleteCount).isEqualTo(1);
     }
@@ -113,14 +112,13 @@ class BookmarkServiceTest {
         BookmarkInfoReqDto newRequest = BookmarkInfoReqDto
                 .builder()
                 .runningRouteId(saveRunningRoute.getId().toString())
-                .userId(userUUID.toString())
                 .build();
 
-        bookmarkService.createBookmark(request);
-        bookmarkService.createBookmark(newRequest);
+        bookmarkService.createBookmark(request, userUUID.toString());
+        bookmarkService.createBookmark(newRequest, userUUID.toString());
 
         BookmarkInfoRespDto response = bookmarkService.getAllUserBookmark(userUUID.toString());
-        List<String> runningRouteIdList = response.getRunningRouteIdList();
+        List<String> runningRouteIdList = response.runningRouteIdList();
 
         assertThat(runningRouteIdList)
                 .containsExactly(runnigRouteUUID.toString(), runningRouteUUID2.toString());

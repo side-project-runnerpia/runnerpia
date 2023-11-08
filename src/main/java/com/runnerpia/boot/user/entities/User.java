@@ -15,7 +15,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "USERS")
-@Getter
+@Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -23,7 +23,7 @@ public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name="uuid2", strategy = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "user_seq", columnDefinition = "BINARY(16) DEFAULT (UNHEX(REPLACE(UUID(), \"-\", \"\")))")
     @Convert(converter = StringToUuidConverter.class)
     private UUID id;

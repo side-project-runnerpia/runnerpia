@@ -20,8 +20,7 @@ public class AuthController {
     @Operation(summary = "로그인")
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody UserLoginReqDto request) {
-        String userId = request.getUserId();
-        HttpHeaders headers = authService.login(userId);
+        HttpHeaders headers = authService.login(request);
         if(headers != null) {
             return ResponseEntity.ok().headers(headers).build();
         }
@@ -34,8 +33,9 @@ public class AuthController {
     public ResponseEntity<UserSignInRespDto> signIn(@RequestBody UserSignInReqDto request) {
 
         UserSignInRespDto response = authService.signIn(request);
-        HttpHeaders headers = authService.login(response.getUserId());
-
+        HttpHeaders headers = authService.login(UserLoginReqDto
+                .builder().userId(response.getUserId())
+                .build());
         return ResponseEntity.ok().headers(headers).body(response);
     }
 

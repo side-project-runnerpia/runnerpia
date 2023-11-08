@@ -2,7 +2,6 @@ package com.runnerpia.boot.auth.jwt;
 
 
 import com.runnerpia.boot.auth.dto.TokenDto;
-import com.runnerpia.boot.auth.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
@@ -40,7 +39,6 @@ public class JwtProvider {
         String refreshToken = generateRefreshToken();
 
         return TokenDto.builder()
-                .grantType(JwtProperties.BEARER_TYPE)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
