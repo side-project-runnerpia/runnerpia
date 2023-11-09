@@ -6,9 +6,9 @@ import com.runnerpia.boot.running_route.repository.TagRepository;
 import com.runnerpia.boot.user.dto.request.UserInfoReqDto;
 import com.runnerpia.boot.user.dto.request.UserSignInReqDto;
 import com.runnerpia.boot.user.dto.response.UserInfoCheckRespDto;
-import com.runnerpia.boot.user.dto.response.UserSignInRespDto;
 import com.runnerpia.boot.user.entities.User;
 import jakarta.transaction.Transactional;
+import jakarta.persistence.NoResultException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -114,10 +113,10 @@ class UserServiceTest {
         assertThat(getInitUserNumberOfUse).isEqualTo(INIT_NUMBER_OF_USE);
         assertThat(getIncreaseUserNumberOfUse).isEqualTo(INIT_NUMBER_OF_USE+1);
 
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(NoResultException.class, () -> {
             userService.increaseUseRecommended(UUID.randomUUID().toString());
         });
-        assertThrows(NoSuchElementException.class, () -> {
+        assertThrows(NoResultException.class, () -> {
             userService.getUseRecommended(UUID.randomUUID().toString());
         });
     }
