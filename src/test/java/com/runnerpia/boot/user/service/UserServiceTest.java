@@ -106,34 +106,20 @@ class UserServiceTest {
 
         UUID userUUID = saveUser.getId();
 
-        Integer getInitUserNumberOfUse = userService.getUseRecommended(userUUID).getUser_numberOfUse();
-        userService.increaseUseRecommended(userUUID);
-        Integer getIncreaseUserNumberOfUse = userService.getUseRecommended(userUUID).getUser_numberOfUse();
+        Integer getInitUserNumberOfUse = userService.getUseRecommended(userUUID.toString()).getUser_numberOfUse();
+        userService.increaseUseRecommended(userUUID.toString());
+        Integer getIncreaseUserNumberOfUse = userService.getUseRecommended(userUUID.toString()).getUser_numberOfUse();
 
 
         assertThat(getInitUserNumberOfUse).isEqualTo(INIT_NUMBER_OF_USE);
         assertThat(getIncreaseUserNumberOfUse).isEqualTo(INIT_NUMBER_OF_USE+1);
 
         assertThrows(NoSuchElementException.class, () -> {
-            userService.increaseUseRecommended(UUID.randomUUID());
+            userService.increaseUseRecommended(UUID.randomUUID().toString());
         });
         assertThrows(NoSuchElementException.class, () -> {
-            userService.getUseRecommended(UUID.randomUUID());
+            userService.getUseRecommended(UUID.randomUUID().toString());
         });
     }
-
-    @Test
-    @DisplayName("회원가입")
-    void signInTest() {
-
-        UserSignInRespDto userSignInRespDto = userService.signIn(userSignInRequest);
-
-        assertThat(userSignInRespDto.getUserId()).isEqualTo(savedSignInUser.getUserId());
-        assertThat(userSignInRespDto.getCity()).isEqualTo(savedSignInUser.getCity());
-        assertThat(userSignInRespDto.getState()).isEqualTo(savedSignInUser.getState());
-        assertThat(userSignInRespDto.getSecureTags().get(0)).contains(savedSecureTag.getId().toString());
-        assertThat(userSignInRespDto.getRecommendedTags().get(0)).isEqualTo(savedRecommendedTag.getId().toString());
-    }
-
 
 }

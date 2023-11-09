@@ -1,5 +1,6 @@
 package com.runnerpia.boot.user.entities;
 
+import com.runnerpia.boot.auth.jwt.Authority;
 import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.util.BaseTimeEntity;
 import com.runnerpia.boot.util.StringToUuidConverter;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "USERS")
-@Getter
+@Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -22,7 +23,7 @@ public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name="uuid2", strategy = "uuid2")
+    @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "user_seq", columnDefinition = "BINARY(16) DEFAULT (UNHEX(REPLACE(UUID(), \"-\", \"\")))")
     @Convert(converter = StringToUuidConverter.class)
     private UUID id;
@@ -76,5 +77,8 @@ public class User extends BaseTimeEntity {
             , cascade = CascadeType.PERSIST
     )
     private List<UserRecommendedTag> userRecommendedTags;
+
+    @Enumerated(EnumType.STRING)
+    private Authority role;
 
 }

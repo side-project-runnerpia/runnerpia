@@ -4,6 +4,7 @@ import jakarta.persistence.NoResultException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
@@ -40,6 +41,12 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ex.getMessage());
+  }
+
+  @ExceptionHandler(AccessDeniedException.class)
+  public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException ex) {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(ex.getMessage());
   }
 }

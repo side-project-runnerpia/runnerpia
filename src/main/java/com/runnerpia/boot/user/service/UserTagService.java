@@ -49,7 +49,6 @@ public class UserTagService {
         List<String> secureTags = request.getSecureTags();
         List<String> savedUserSecureTagUUIDs = new ArrayList<>();
         for (String secureTag : secureTags) {
-
             UUID secureTagUUID = UUID.fromString(secureTag);
             Optional<Tag> findTag = tagRepository.findById(secureTagUUID);
 
@@ -57,7 +56,6 @@ public class UserTagService {
             String savedUserSecureTagUUID = savedUserSecureTag.getTag().getId().toString();
             savedUserSecureTagUUIDs.add(savedUserSecureTagUUID);
         }
-
         return savedUserSecureTagUUIDs;
     }
 }

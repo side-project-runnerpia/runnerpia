@@ -52,6 +52,8 @@ class UserTagServiceTest {
         Tag secureTag = new Tag(SECURE_TAG, TagStatus.SECURE);
         savedSecureTag = tagRepository.save(secureTag);
 
+
+
         Tag recommendedTag = new Tag(RECOMMENDED_TAG, TagStatus.SECURE);
         savedRecommendedTag = tagRepository.save(recommendedTag);
 
@@ -78,7 +80,7 @@ class UserTagServiceTest {
 
         List<String> userRecommendedTags = userTagService.createUserRecommendedTags(request, savedUser);
 
-        assertThat(userRecommendedTags).contains(SECURE_TAG);
+        assertThat(userRecommendedTags).contains(savedRecommendedTag.getId().toString());
 
     }
 
@@ -88,11 +90,6 @@ class UserTagServiceTest {
 
         List<String> userSecureTags = userTagService.createUserSecureTags(request, savedUser);
 
-        assertThat(userSecureTags).contains(SECURE_TAG);
-
-
+        assertThat(userSecureTags).contains(savedSecureTag.getId().toString());
     }
-
-
-
 }

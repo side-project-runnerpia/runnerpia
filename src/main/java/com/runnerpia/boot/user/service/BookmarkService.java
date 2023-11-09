@@ -8,7 +8,6 @@ import com.runnerpia.boot.user.entities.Bookmark;
 import com.runnerpia.boot.user.entities.User;
 import com.runnerpia.boot.user.repository.BookmarkRepository;
 import com.runnerpia.boot.user.repository.UserRepository;
-import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +39,9 @@ public class BookmarkService {
     }
     
     @Transactional
-    public Bookmark createBookmark(BookmarkInfoReqDto request) {
+    public Bookmark createBookmark(BookmarkInfoReqDto request, String userUUID) {
 
-        User user = validateAndGetUser(request.getUserId());
+        User user = validateAndGetUser(userUUID);
         RunningRoute runningRoute = validateAndGetRunningRoute(request.getRunningRouteId());
 
         Bookmark bookmark = request.toEntity(user, runningRoute);
@@ -51,9 +50,9 @@ public class BookmarkService {
     }
 
     @Transactional
-    public Long deleteBookmark(BookmarkInfoReqDto request) {
+    public Long deleteBookmark(BookmarkInfoReqDto request, String userUUID) {
 
-        User user = validateAndGetUser(request.getUserId());
+        User user = validateAndGetUser(userUUID);
         RunningRoute runningRoute = validateAndGetRunningRoute(request.getRunningRouteId());
 
         return bookmarkRepository.deleteByUserAndRunningRoute(user, runningRoute);
@@ -61,13 +60,13 @@ public class BookmarkService {
 
     private User validateAndGetUser(String userUUID) {
         Optional<User> findUser = userRepository.findById(UUID.fromString(userUUID));
-        if(!findUser.isPresent()) throw new NoSuchElementException("사용자를 찾을 수 없습니다.");
+        if(findUser.isEmpty()) throw new NoSuchElementException("사용자를 찾을 수 없습니다.");
         return findUser.get();
     }
 
     private RunningRoute validateAndGetRunningRoute(String runningRouteUUID) {
         Optional<RunningRoute> findRunningRoute = runningRouteRepository.findById(UUID.fromString(runningRouteUUID));
-        if(!findRunningRoute.isPresent()) throw new NoSuchElementException("러닝 경로를 찾을 수 없습니다.");
+        if(findRunningRoute.isEmpty()) throw new NoSuchElementException("러닝 경로를 찾을 수 없습니다.");
         return findRunningRoute.get();
     }
 }
