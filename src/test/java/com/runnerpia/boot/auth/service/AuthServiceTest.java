@@ -40,6 +40,9 @@ class AuthServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private TokenService tokenService;
+
     private final String USER_ID = "userId";
     private final String CITY = "city";
     private final String STATE = "state";
