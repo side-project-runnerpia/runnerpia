@@ -11,13 +11,13 @@ import com.runnerpia.boot.running_route.entities.RunningRoute;
 import com.runnerpia.boot.running_route.entities.enums.TagStatus;
 import com.runnerpia.boot.running_route.repository.RunningRouteRepository;
 import com.runnerpia.boot.user.entities.User;
-import com.runnerpia.boot.user.repository.UserRepository;
 import com.runnerpia.boot.user.service.UserService;
 import jakarta.persistence.NoResultException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,17 +31,10 @@ import java.util.stream.Stream;
 @Slf4j
 public class RunningRouteService {
   private final RunningRouteRepository runningRouteRepository;
-  private final UserRepository userRepository; // 임시
   private final ImageService imageService;
   private final TagService tagService;
   private final UserService userService;
   private final GeometryService geometryService;
-  private static final User dummyUser = User.builder().userId("test").nickname("test").build(); // 임시 데이터
-
-  @Transactional
-  public User saveDummyUser(User user) {
-    return userRepository.save(user);
-  }
 
   private void checkDuplicatedRouteNameForApi(String routeName) {
     runningRouteRepository.findByRouteName(routeName).ifPresent(name -> {
@@ -77,6 +70,14 @@ public class RunningRouteService {
             .orElseThrow(() -> new NoResultException("해당 ID 값을 가진 경로는 존재하지 않아요."));
   }
 
+  @Transactional(readOnly = true)
+  public void checkPermissionToDeleteData(RunningRoute targetRoute, String userSeq) {
+    isValidUUID(userSeq);
+    Optional.of(targetRoute.getUser().getId())
+            .filter(id -> id.equals(UUID.fromString(userSeq)))
+            .orElseThrow(() -> new AccessDeniedException("해당 경로에 대한 권한이 없어요!"));
+  }
+
   public Set<RunningRoute> findAllRelatedRoutesInList(List<RunningRoute> routeList) {
     return routeList.stream()
             .flatMap(route -> {
@@ -92,9 +93,8 @@ public class RunningRouteService {
   public CreateRunningRouteResponseDto create(CreateRunningRouteRequestDto request) throws RuntimeException {
     RunningRoute route = request.toEntity();
     checkDuplicatedRouteNameForApi(route.getRouteName());
-//    saveDummyUser(dummyUser); // 임시
-    User dummyUser = userRepository.findByUserId("test").get(); // 임시
-    route.setUser(dummyUser);
+    User user = userService.findUserByUserSeq(String.valueOf(request.getUser()));
+    route.setUser(user);
 
     Optional.ofNullable(request.getMainRoute())
             .map(mainRouteId -> runningRouteRepository.findById(mainRouteId)
@@ -119,11 +119,11 @@ public class RunningRouteService {
 
   @Transactional(readOnly = true)
   public MainRouteDetailResponseDto getMainRouteDetail(String id) {
-    RunningRoute route = findById(id);
+    RunningRoute targetRoute = findById(id);
 
-    MainRouteDetailResponseDto response = route.toResponse();
+    MainRouteDetailResponseDto response = targetRoute.toResponse();
 
-    Set<RunningRoute> allRoutes = findAllRelatedRoutesInList(List.of(route));
+    Set<RunningRoute> allRoutes = findAllRelatedRoutesInList(List.of(targetRoute));
 
     List<String> images = imageService.findAllByRunningRouteList(allRoutes)
             .stream()
@@ -142,8 +142,9 @@ public class RunningRouteService {
   }
 
   @Transactional
-  public CreateRunningRouteResponseDto update(CreateRunningRouteRequestDto request, String id) {
+  public CreateRunningRouteResponseDto update(CreateRunningRouteRequestDto request, String id, String userSeq) {
     RunningRoute targetRoute = findById(id);
+    checkPermissionToDeleteData(targetRoute, userSeq);
 
     targetRoute.setReview(request.getReview());
 
@@ -157,13 +158,14 @@ public class RunningRouteService {
   }
 
   @Transactional
-  public void delete(String id) {
+  public void delete(String id, String userSeq) {
     RunningRoute targetRoute = findById(id);
+    checkPermissionToDeleteData(targetRoute, userSeq);
     runningRouteRepository.delete(targetRoute);
   }
 
-  public CheckRunningExperienceDto checkRunningExperience(String id) {
-    User targetUser = userRepository.findByUserId("test").get(); // 임시
+  public CheckRunningExperienceDto checkRunningExperience(String id, String userSeq) {
+    User targetUser = userService.findUserByUserSeq(userSeq);
     RunningRoute targetRoute = findById(id);
 
     Boolean isExperienceRoute = findAllRelatedRoutesInList(userService.findAllRunningRoutesByUser(targetUser))
@@ -173,8 +175,8 @@ public class RunningRouteService {
     return new CheckRunningExperienceDto(isExperienceRoute);
   }
 
-  public List<MainRouteDetailResponseDto> getAllRoutesByFilter(Predicate<RunningRoute> filter) {
-    User targetUser = userRepository.findByUserId("test").orElseThrow(); // 임시
+  public List<MainRouteDetailResponseDto> getAllRoutesByFilter(Predicate<RunningRoute> filter, String userSeq) {
+    User targetUser = userService.findUserByUserSeq(userSeq);
     return userService.findAllRunningRoutesByUser(targetUser)
             .stream()
             .filter(filter)
@@ -182,14 +184,14 @@ public class RunningRouteService {
             .collect(Collectors.toList());
   }
 
-  public List<MainRouteDetailResponseDto> getAllMainRoutes() {
+  public List<MainRouteDetailResponseDto> getAllMainRoutes(String userSeq) {
     Predicate<RunningRoute> isMainRoute = runningRoute -> runningRoute.getMainRoute() == null;
-    return getAllRoutesByFilter(isMainRoute);
+    return getAllRoutesByFilter(isMainRoute, userSeq);
   }
 
-  public List<MainRouteDetailResponseDto> getAllSubRoutes() {
+  public List<MainRouteDetailResponseDto> getAllSubRoutes(String userSeq) {
     Predicate<RunningRoute> isSubRoute = runningRoute -> runningRoute.getMainRoute() != null;
-    return getAllRoutesByFilter(isSubRoute);
+    return getAllRoutesByFilter(isSubRoute, userSeq);
   }
 
   public List<SearchNearbyRouteResponseDto> getNearbyRouteList(Double longitude, Double latitude, int range) {

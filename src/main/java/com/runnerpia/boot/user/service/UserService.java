@@ -8,13 +8,13 @@ import com.runnerpia.boot.user.dto.response.UserInfoCheckRespDto;
 import com.runnerpia.boot.user.dto.response.UserInfoRespDto;
 import com.runnerpia.boot.user.entities.User;
 import com.runnerpia.boot.user.repository.UserRepository;
+import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -35,18 +35,20 @@ public class UserService {
         return new UserInfoCheckRespDto(isExists);
     }
 
+    public User findUserByUserSeq(String id) {
+        return userRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new NoResultException("존재하지 않는 사용자에요."));
+    }
+
     @Transactional
     public void increaseUseRecommended(String userUUID) {
-
-        Optional<User> findUser = userRepository.findById(UUID.fromString(userUUID));
-        User user = findUser.get();
+        User user = findUserByUserSeq(userUUID);
         user.setNumberOfUse(user.getNumberOfUse() + 1);
         userRepository.save(user);
     }
 
     public UserInfoRespDto getUseRecommended(String userUUID) {
-        Optional<User> findUser = userRepository.findById(UUID.fromString(userUUID));
-        User user = findUser.get();
+        User user = findUserByUserSeq(userUUID);
         return new UserInfoRespDto(user);
     }
 

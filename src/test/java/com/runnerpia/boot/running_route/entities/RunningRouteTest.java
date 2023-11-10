@@ -8,6 +8,10 @@ import com.runnerpia.boot.util.GeometryConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.io.ParseException;
+import org.locationtech.jts.io.WKTReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.jdbc.EmbeddedDatabaseConnection;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -59,6 +63,31 @@ public class RunningRouteTest {
             .build();
 
     entityManager.persistAndFlush(runningRoute);
+  }
+
+  @Test
+  @DisplayName("위도 경도 넣기")
+  void testLatLng() throws ParseException {
+    Double longitude = 126.013;
+    Double latitude = 33.013;
+
+    Geometry lineString = new WKTReader().read("LINESTRING(" + longitude + " " + latitude + ", "
+            + longitude + " " + latitude + ")");
+
+    runningRoute = RunningRoute.builder()
+            .routeName("Test Route1")
+            .arrayOfPos((LineString) lineString)
+            .runningTime(LocalTime.of(1, 30, 33))
+            .runningDate(LocalDateTime.of(2023, 12, 2, 19, 30))
+            .review("Great route!")
+            .distance(GeometryConverter.convertToLineString(sampleCoordinate).getLength())
+            .location("Test Location")
+            .user(dummyUser)
+            .build();
+
+    entityManager.persistAndFlush(runningRoute);
+
+    assertNotNull(runningRoute);
   }
 
   @Test
