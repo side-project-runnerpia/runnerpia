@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 gradlew.bat
 gradlew
+.DS_Store
 
 ### STS ###
 .apt_generated
