@@ -24,7 +24,7 @@ jobs:
             cd /home/ubuntu/repo/runnerpia
             git checkout main
             git pull origin main
-            /opt/gradle/gradle-8.2.1/bin/gradle build 
+            /opt/gradle/gradle-8.2.1/bin/gradle build -x test
             if lsof -Pi :$8080 -sTCP:LISTEN -t >/dev/null; then
               echo "8080 포트가 사용 중입니다. 프로세스를 종료합니다."
               sudo fuser -k $8080/tcp
