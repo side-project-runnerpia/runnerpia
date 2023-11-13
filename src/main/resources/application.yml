@@ -1,0 +1,7 @@
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+
+spring:
+  profiles:
+    active: dev

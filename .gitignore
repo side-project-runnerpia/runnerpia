@@ -6,6 +6,7 @@ build/
 !**/src/test/**/build/
 gradlew.bat
 gradlew
+.DS_Store
 
 ### STS ###
 .apt_generated
@@ -37,3 +38,7 @@ out/
 
 ### VS Code ###
 .vscode/
+/src/test/java/com/runnerpia/boot/EncryptionTest.java
+/src/main/resources/images/
+/src/main/resources/data.sql
+/src/main/generated/
