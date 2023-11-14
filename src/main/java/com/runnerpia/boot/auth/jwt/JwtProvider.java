@@ -84,7 +84,7 @@ public class JwtProvider {
     }
 
 
-    private Claims parseClaims(String accessToken) {
+    public Claims parseClaims(String accessToken) {
 
         try {
             return Jwts.parserBuilder()

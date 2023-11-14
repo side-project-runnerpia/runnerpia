@@ -71,9 +71,9 @@ public class AuthService {
     public HttpHeaders refresh(String accessToken) {
 
         String resolveToken = resolveToken(accessToken);
-        Token token = validateRefreshToken(resolveToken);
-        String newAccessToken = tokenService.regenerateAccessToken(resolveToken, token.getId());
-
+        String userUUID = jwtProvider.parseClaims(resolveToken).getSubject();
+        validateRefreshToken(resolveToken);
+        String newAccessToken = tokenService.regenerateAccessToken(resolveToken, userUUID);
         return setTokenHeaders(newAccessToken);
     }
 
@@ -92,7 +92,7 @@ public class AuthService {
         return headers;
     }
 
-    public Token validateRefreshToken(String accessToken){
+    public void validateRefreshToken(String accessToken){
 
         Token tokenEntity = tokenService.getTokenEntity(accessToken);
 
@@ -104,7 +104,6 @@ public class AuthService {
                     .setSigningKey(jwtProvider.getKey())
                     .build()
                     .parseClaimsJws(tokenEntity.getRefreshToken());
-            return tokenEntity;
         } catch (ExpiredJwtException e) {
             throw new AccessDeniedException("토큰이 만료되었습니다. 재로그인이 필요합니다.");
         }
