@@ -64,56 +64,27 @@ public class AuthService {
         TokenDto tokenDto = jwtProvider.generateTokenDto(userUUID);
         tokenService.saveAccessAndRefreshToken(tokenDto.toEntity());
 
-        return setTokenHeaders(tokenDto.getAccessToken());
+        return tokenService.setTokenHeaders(tokenDto.getAccessToken());
     }
 
     @Transactional
     public HttpHeaders refresh(String accessToken) {
 
-        String resolveToken = resolveToken(accessToken);
+        String resolveToken = tokenService.resolveToken(accessToken);
         String userUUID = jwtProvider.parseClaims(resolveToken).getSubject();
-        validateRefreshToken(resolveToken);
+        tokenService.validateRefreshToken(resolveToken);
         String newAccessToken = tokenService.regenerateAccessToken(resolveToken, userUUID);
-        return setTokenHeaders(newAccessToken);
+        return tokenService.setTokenHeaders(newAccessToken);
     }
 
     @Transactional
     public void logout(String accessToken) {
 
-        String resolveToken = resolveToken(accessToken);
+        String resolveToken = tokenService.resolveToken(accessToken);
         tokenService.removeRefreshToken(resolveToken);
     }
 
 
 
-    private HttpHeaders setTokenHeaders(String accessToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(JwtProperties.HEADER_STRING, JwtProperties.TOKEN_PREFIX + accessToken);
-        return headers;
-    }
 
-    public void validateRefreshToken(String accessToken){
-
-        Token tokenEntity = tokenService.getTokenEntity(accessToken);
-
-        if(tokenEntity == null)
-            throw new NoSuchElementException("토큰 정보가 존재하지 않습니다.재로그인이 필요합니다.");
-
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(jwtProvider.getKey())
-                    .build()
-                    .parseClaimsJws(tokenEntity.getRefreshToken());
-        } catch (ExpiredJwtException e) {
-            throw new AccessDeniedException("토큰이 만료되었습니다. 재로그인이 필요합니다.");
-        }
-    }
-
-    public String resolveToken(String accessToken) {
-
-        if (StringUtils.hasText(accessToken) && accessToken.startsWith(JwtProperties.TOKEN_PREFIX)) {
-            return accessToken.substring(7);
-        }
-        throw new NoSuchElementException("토큰 정보가 존재하지 않습니다.재로그인이 필요합니다.");
-    }
 }
